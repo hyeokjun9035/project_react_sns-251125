@@ -17,7 +17,7 @@ function Join() {
         minHeight="100vh"
       >
         <Typography variant="h4" gutterBottom>
-          회원가입
+          Thlog 가입하기
         </Typography>
         <TextField inputRef={idRef} label="id" variant="outlined" margin="normal" fullWidth />
         <TextField

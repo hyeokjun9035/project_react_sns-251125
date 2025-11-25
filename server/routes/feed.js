@@ -10,12 +10,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.get("/:userId", async (req, res) => {
+router.get("/", async (req, res) => {
     console.log(`${req.protocol}://${req.get("host")}`);
-    let { userId } = req.params;
     try {
-        let sql = "SELECT * FROM P_FEED F INNER JOIN P_FEED_IMG I ON F.FEEDNO = I.FEEDNO WHERE F.USERID = ?";
-        let [list] = await db.query(sql, [userId]);
+        let sql = "SELECT * FROM P_FEED F INNER JOIN P_FEED_IMG I ON F.FEEDNO = I.FEEDNO ORDER BY F.FEEDNO DESC";
+        let [list] = await db.query(sql);
         res.json({
             result: "success",
             list
@@ -28,7 +27,7 @@ router.get("/:userId", async (req, res) => {
 router.delete("/:feedId", authMiddleware, async (req, res) => {
     let { feedId } = req.params;
     try {
-        let sql = "DELETE FROM P_FEED WHERE ID = ?";
+        let sql = "DELETE FROM P_FEED WHERE FEEDNO = ?";
         let result = await db.query(sql, [feedId]);
         res.json({
             result: result,

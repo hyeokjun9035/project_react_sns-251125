@@ -18,6 +18,7 @@ import { useRef } from 'react';
 
 function Register() {
   const [files, setFile] = React.useState([]);
+  let titleRef = useRef();
   let contentRef = useRef();
 
   const handleFileChange = (event) => {
@@ -32,6 +33,7 @@ function Register() {
     const token = localStorage.getItem("token");
     const decode = jwtDecode(token);
     let param = {
+
       content: contentRef.current.value,
       userId: decode.userId
     }
@@ -82,7 +84,7 @@ function Register() {
         sx={{ padding: '20px' }} // 배경색 없음
       >
         <Typography variant="h4" gutterBottom>
-          등록
+          새 게시물
         </Typography>
 
         <FormControl fullWidth margin="normal">

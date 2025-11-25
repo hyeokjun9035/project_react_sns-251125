@@ -56,7 +56,11 @@ function Feed() {
     if (token) {
       const decode = jwtDecode(token);
       console.log("decode ==>", decode);
-      fetch("http://localhost:3010/feed/" + decode.userId)
+      fetch("http://localhost:3010/feed", {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      })
         .then(res => res.json())
         .then(data => {
           setFeeds(data.list);
@@ -101,23 +105,27 @@ function Feed() {
   return (
     <Container maxWidth="md">
       <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6">SNS</Typography>
-        </Toolbar>
       </AppBar>
-
-      <Box mt={4}>
-        <Grid2 container spacing={3}>
-          {feeds.length > 0 ? feeds.map((feed) => (
-            <Grid2 xs={12} sm={6} md={4} key={feed.FEEDNO}>
-              <Card>
+      <Box mt={4} sx={{
+        display: 'flex', justifyContent: 'center', // 가운데 정렬
+      }}>
+        <Box sx={{ width: '550px', maxWidth: '100%' }}>
+          {feeds.length > 0 ? (
+            feeds.map((feed) => (
+              <Card
+                key={feed.FEEDNO}
+                sx={{
+                  mb: 4,                        // 카드들 사이 간격
+                  boxShadow: 3,                 // 살짝 그림자
+                  borderRadius: 2,              // 모서리 둥글게
+                }}
+              >
                 <CardMedia
                   component="img"
-                  height="200"
                   image={feed.IMGPATH}
                   alt={feed.IMGNAME}
                   onClick={() => handleClickOpen(feed)}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', maxHeight: '600px', objectFit: 'cover' }}
                 />
                 <CardContent>
                   <Typography variant="body2" color="textSecondary">
@@ -125,9 +133,11 @@ function Feed() {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid2>
-          )) : "등록된 피드가 없습니다. 피드를 등록해보세요."}
-        </Grid2>
+            ))
+          ) : (
+            "등록된 피드가 없습니다. 피드를 등록해보세요."
+          )}
+        </Box>
       </Box>
 
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="lg"> {/* 모달 크기 조정 */}

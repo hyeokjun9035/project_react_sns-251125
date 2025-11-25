@@ -3,7 +3,7 @@ import Stack from '@mui/material/Stack';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 
-function Mui() {
+function Chat() {
     return <>
         <Stack spacing={1}>
             <Rating size='large' name="half-rating" defaultValue={4} precision={1} />
@@ -76,4 +76,4 @@ const itemData = [
     },
 ];
 
-export default Mui;
+export default Chat;

@@ -16,13 +16,22 @@ function Login() {
         justifyContent="center"
         minHeight="100vh"
       >
-        <Typography variant="h4" gutterBottom>
-          로그인
+        <Typography variant="h6" component="div" sx={{
+          p: 2,
+          fontFamily: "'Cafe24Oneprettynight', sans-serif",
+          fontWeight: 700,
+          fontSize: "35px",
+          color: "#333",
+          textShadow: "0 1px 2px rgba(0,0,0,0.15)"
+        }}>
+          <span>𝓣𝓱𝓵</span>
+          <span style={{ color: "#ff7fa2", margin: "0 2px" }}>♥</span>
+          <span>𝓰</span>
         </Typography>
-        <TextField inputRef={idRef} label="id" variant="outlined" margin="normal" fullWidth />
+        <TextField inputRef={idRef} label="ID" variant="outlined" margin="normal" fullWidth />
         <TextField
           inputRef={pwdRef}
-          label="Password"
+          label="비밀번호"
           variant="outlined"
           margin="normal"
           fullWidth
@@ -52,8 +61,8 @@ function Login() {
         }} variant="contained" color="primary" fullWidth style={{ marginTop: '20px' }}>
           로그인
         </Button>
-        <Typography variant="body2" style={{ marginTop: '10px' }}>
-          회원아니셈 ? <Link to="/join">회원가입</Link>
+        <Typography variant="body2" style={{ marginTop: '15px' }}>
+          계정이 없으신가요? <Link to="/join">회원가입</Link>
         </Typography>
       </Box>
     </Container>
