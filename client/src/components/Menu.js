@@ -3,7 +3,7 @@ import { Drawer, List, ListItem, ListItemText, Typography, Toolbar, ListItemIcon
 import {
   Home, HomeOutlined, AccountCircle, AccountCircleOutlined, ArtTrack, ArtTrackOutlined, 
   ChatBubble, ChatBubbleOutline, ScreenSearchDesktopOutlined, ScreenSearchDesktopRounded,
-  NotificationsNone, NotificationsActive
+  NotificationsNone, NotificationsActive, AddRounded
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
@@ -65,36 +65,6 @@ function Menu() {
           />
         </ListItem>
 
-        {/* 등록 */}
-        <ListItem button component={Link} to="/register"
-          onClick={() => setSelectedMenu('register')}
-        >
-          <ListItemIcon>
-            {selectedMenu == 'register' ? <ArtTrack /> : <ArtTrackOutlined />}
-          </ListItemIcon>
-          <ListItemText primary="등록"
-            primaryTypographyProps={{
-              fontWeight: selectedMenu === 'register' ? 'bold' : 'normal',
-              color: selectedMenu === 'register' ? 'primary' : 'inherit',
-            }}
-          />
-        </ListItem>
-
-        {/* 마이페이지 */}
-        <ListItem button component={Link} to="/mypage"
-          onClick={() => setSelectedMenu('mypage')}
-        >
-          <ListItemIcon>
-            {selectedMenu === 'mypage' ? <AccountCircle /> : <AccountCircleOutlined />}
-          </ListItemIcon>
-          <ListItemText primary="마이페이지"
-            primaryTypographyProps={{
-              fontWeight: selectedMenu === 'mypage' ? 'bold' : 'normal',
-              color: selectedMenu === 'mypage' ? 'primary' : 'inherit',
-            }}
-          />
-        </ListItem>
-
         {/* 메세지 */}
         <ListItem button component={Link} to="/chat"
           onClick={() => setSelectedMenu('chat')}
@@ -121,6 +91,36 @@ function Menu() {
             primaryTypographyProps={{
               fontWeight: selectedMenu === 'Notification' ? 'bold' : 'normal',
               color: selectedMenu === 'Notification' ? 'primary' : 'inherit',
+            }}
+          />
+        </ListItem>
+
+        {/* 만들기 */}
+        <ListItem button component={Link} to="/register"
+          onClick={() => setSelectedMenu('register')}
+        >
+          <ListItemIcon>
+            {selectedMenu == 'register' ? <AddRounded /> : <AddRounded />}
+          </ListItemIcon>
+          <ListItemText primary="만들기"
+            primaryTypographyProps={{
+              fontWeight: selectedMenu === 'register' ? 'bold' : 'normal',
+              color: selectedMenu === 'register' ? 'primary' : 'inherit',
+            }}
+          />
+        </ListItem>
+
+        {/* 마이페이지 */}
+        <ListItem button component={Link} to="/mypage"
+          onClick={() => setSelectedMenu('mypage')}
+        >
+          <ListItemIcon>
+            {selectedMenu === 'mypage' ? <AccountCircle /> : <AccountCircleOutlined />}
+          </ListItemIcon>
+          <ListItemText primary="마이페이지"
+            primaryTypographyProps={{
+              fontWeight: selectedMenu === 'mypage' ? 'bold' : 'normal',
+              color: selectedMenu === 'mypage' ? 'primary' : 'inherit',
             }}
           />
         </ListItem>
