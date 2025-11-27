@@ -56,7 +56,7 @@ router.delete("/:feedId", authMiddleware, async (req, res) => {
 router.post("/", authMiddleware, async (req, res) => {
     let { userId, content } = req.body;
     try {
-        let sql = "INSERT INTO P_FEED VALUES(NULL, ?, ?, NOW())";
+        let sql = "INSERT INTO P_FEED VALUES(NULL, ?, ?, 0, NOW(), NOW())";
         let result = await db.query(sql, [userId, content]);
         console.log(result);
         res.json({
@@ -69,7 +69,7 @@ router.post("/", authMiddleware, async (req, res) => {
 })
 
 router.post('/upload', upload.array('file'), async (req, res) => {
-    let { feedId } = req.body;
+    let { feedNo } = req.body;
     const files = req.files;
     // const filename = req.file.filename; 
     // const destination = req.file.destination; 
@@ -77,10 +77,10 @@ router.post('/upload', upload.array('file'), async (req, res) => {
         let results = [];
         let host = `${req.protocol}://${req.get("host")}/`;
         for (let file of files) {
-            let filename = file.filename;
-            let destination = file.destination;
-            let query = "INSERT INTO P_FEED_IMG VALUES(NULL, ?, ?, ?)";
-            let result = await db.query(query, [feedId, filename, host+destination+filename]);
+            let imgName = file.filename;
+            let imgPath = host + file.destination + imgName;
+            let query = "INSERT INTO P_FEED_IMG VALUES(NULL, ?, ?, ?, 'N', NOW(), NOW())";
+            let result = await db.query(query, [feedNo, imgName, imgPath]);
             results.push(result);
         }
         res.json({

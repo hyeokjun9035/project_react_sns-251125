@@ -13,6 +13,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/profile', express.static(path.join(__dirname, 'profile')));
 
 //routes 영역
 // app.use("/student", stuRouter);

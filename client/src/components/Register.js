@@ -53,12 +53,12 @@ function Register() {
 
   }
 
-  const fnUploadFile = (feedId) => {
+  const fnUploadFile = (feedNo) => {
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
       formData.append("file", files[i]);
     }
-    formData.append("feedId", feedId);
+    formData.append("feedNo", feedNo);
     fetch("http://localhost:3010/feed/upload", {
       method: "POST",
       body: formData
