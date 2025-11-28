@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Drawer, List, ListItem, ListItemText, Typography, Toolbar, ListItemIcon } from '@mui/material';
+import { Drawer, List, ListItem, ListItemText, Typography, Toolbar, ListItemIcon, Button } from '@mui/material';
 import {
-  Home, HomeOutlined, AccountCircle, AccountCircleOutlined, ArtTrack, ArtTrackOutlined, 
+  Home, HomeOutlined, AccountCircle, AccountCircleOutlined, ArtTrack, ArtTrackOutlined,
   ChatBubble, ChatBubbleOutline, ScreenSearchDesktopOutlined, ScreenSearchDesktopRounded,
   NotificationsNone, NotificationsActive, AddRounded
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { useCreatePost } from './CreatePostContext';
 
 function Menu() {
   const [selectedMenu, setSelectedMenu] = useState('');
+  const { setOpenCreate } = useCreatePost();
   return (
     <Drawer
       variant="permanent"
@@ -22,19 +24,27 @@ function Menu() {
       }}
     >
       <Toolbar sx={{ minHeight: "0px !important", height: "0px" }} />
-      <Typography variant="h6" component="div" sx={{
-        p: 2,
-        fontFamily: "'Cafe24Oneprettynight', sans-serif",
-        fontWeight: 700,
-        fontSize: "26px",
-        color: "#333",
-        textShadow: "0 1px 2px rgba(0,0,0,0.15)"
-      }}>
-        <span>𝓣𝓱𝓵</span>
-        <span style={{ color: "#ff7fa2", margin: "0 2px" }}>♥</span>
-        <span>𝓰</span>
-      </Typography>
       <List>
+        <ListItem
+          component={Link}
+          to="/feed"
+          onClick={() => setSelectedMenu('feed')}
+          sx={{ mb: 1 }}
+        >
+          <ListItemText
+            primary={
+              <span style={{
+                fontFamily: "'Cafe24Oneprettynight', sans-serif",
+                fontWeight: 700,
+                fontSize: "26px",
+                color: "#333",
+                textShadow: "0 1px 2px rgba(0,0,0,0.15)"
+              }}>
+                𝓣𝓱𝓵<span style={{ color: "#ff7fa2", margin: "0 2px" }}>♥</span>𝓰
+              </span>
+            }
+          />
+        </ListItem>
         {/* 홈 */}
         <ListItem button component={Link} to="/feed"
           onClick={() => setSelectedMenu('feed')}
@@ -96,13 +106,18 @@ function Menu() {
         </ListItem>
 
         {/* 만들기 */}
-        <ListItem button component={Link} to="/register"
-          onClick={() => setSelectedMenu('register')}
+        <ListItem
+          button
+          onClick={() => {
+            setSelectedMenu('register');
+            setOpenCreate(true);
+          }}
         >
           <ListItemIcon>
-            {selectedMenu == 'register' ? <AddRounded /> : <AddRounded />}
+            <AddRounded />
           </ListItemIcon>
-          <ListItemText primary="만들기"
+          <ListItemText
+            primary="만들기"
             primaryTypographyProps={{
               fontWeight: selectedMenu === 'register' ? 'bold' : 'normal',
               color: selectedMenu === 'register' ? 'primary' : 'inherit',

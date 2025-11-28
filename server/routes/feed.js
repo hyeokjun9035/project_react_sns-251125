@@ -39,11 +39,48 @@ router.get("/:userId", async (req, res) => {
     }
 })
 
-router.delete("/:feedId", authMiddleware, async (req, res) => {
-    let { feedId } = req.params;
+router.delete("/:feedNo", authMiddleware, async (req, res) => {
+    let { feedNo } = req.params;
     try {
-        let sql = "DELETE FROM P_FEED WHERE FEEDNO = ?";
-        let result = await db.query(sql, [feedId]);
+        // 0) 로그인한 유저 아이디 (이미 follow 라우터에서 쓰던 방식)
+        const loginUserId = req.user.userId;
+
+        // 1) 먼저 이 피드의 작성자가 누구인지 조회
+        let sql = "SELECT USERID FROM P_FEED WHERE FEEDNO = ?";
+        let [list] = await db.query(sql, [feedNo]);
+
+        // 1-1) 피드가 없으면
+        if (list.length === 0) {
+            return res.json({
+                result: false,
+                msg: "존재하지 않는 게시물입니다."
+            });
+        }
+
+        const feedOwnerId = list[0].USERID;
+
+        // 1-2) 작성자와 로그인한 사람이 다르면 삭제 불가
+        if (feedOwnerId !== loginUserId) {
+            return res.json({
+                result: false,
+                msg: "본인이 작성한 게시물만 삭제할 수 있습니다."
+            });
+        }
+
+        // 2) 댓글 좋아요 삭제
+        await db.query("DELETE PL FROM P_COMMENT_LIKE PL  JOIN P_COMMENT PC ON PL.COMMENTNO = PC.COMMENTNO WHERE PC.FEEDNO = ?", [feedNo]);
+
+        // 3) 댓글 먼저 삭제
+        await db.query("DELETE FROM P_COMMENT WHERE FEEDNO = ?", [feedNo]);
+
+        // 4) 댓글 좋아요 삭제
+        await db.query("DELETE FROM P_FEED_LIKE WHERE FEEDNO = ?", [feedNo]);
+
+        // 5) 이미지도 삭제 (외래키 있을 가능성 높음)
+        await db.query("DELETE FROM P_FEED_IMG WHERE FEEDNO = ?", [feedNo]);
+
+        // 6) 마지막으로 피드 삭제
+        let [result] = await db.query("DELETE FROM P_FEED WHERE FEEDNO = ?", [feedNo]);
         res.json({
             result: result,
             msg: "삭제되었습니다."
