@@ -75,6 +75,7 @@ function Feed() {
                 feedNo: row.FEEDNO,
                 CONTENT: row.CONTENT,
                 USERID: row.USERID,
+
                 images: [],
               };
             }
@@ -88,9 +89,9 @@ function Feed() {
             return acc;
           }, {});
 
-          const groupedFeeds = Object.values(groupedObj);
+          const groupedFeeds = Object.values(groupedObj).reverse();
           setFeeds(groupedFeeds);
-
+          
           // 각 피드의 이미지 인덱스를 0으로 초기화
           const initIndexes = {};
           groupedFeeds.forEach((f) => {
@@ -153,8 +154,10 @@ function Feed() {
       maxWidth={false}
       disableGutters
       sx={{
-        ml: '240px', // 왼쪽 Drawer 만큼 띄우기
+        pl: '240px',    // ✅ 안쪽 여백으로 변경
         pr: 8,
+        boxSizing: 'border-box',
+        overflowX: 'hidden', // 혹시 모를 오버플로우 방지용
       }}
     >
       {/* 메인 레이아웃: 피드 + 오른쪽 사이드바 */}
@@ -162,9 +165,11 @@ function Feed() {
         mt={4}
         sx={{
           display: 'flex',
-          justifyContent: 'flex-start',
-          gap: '800px', // 필요하면 숫자 줄여도 됨
           alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          maxWidth: 960,   // 최대 960px
+          width: '100%',   // 화면이 더 작을 땐 줄어들게
+          mx: 'auto',      // Container 안에서 가운데 정렬
         }}
       >
         {/* 중앙 피드 컬럼 (인스타처럼 폭 470px 고정) */}
@@ -188,6 +193,19 @@ function Feed() {
                     overflow: 'hidden',
                   }}
                 >
+                  {/* 🔥 작성자 영역 (프로필 이미지 + 아이디) */}
+                  <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.2,
+                    px: 2,
+                    py: 1.5
+                  }}>
+                    <Avatar src={feed.PROFILEIMG} />
+                    <Typography sx={{ fontWeight: 700 }}>
+                      {feed.USERID}
+                    </Typography>
+                  </Box>
                   {/* ⬇️ 이미지 캐러셀 영역 (모달 X, 카드 안에서 바로 넘김) */}
                   <Box
                     sx={{
@@ -346,7 +364,7 @@ function Feed() {
               display: { xs: 'none', md: 'block' },
               position: 'static',
               top: 32,
-              ml: -80, // 네가 맞춰둔 값
+              ml: 0,          // 🔽 이제 큰 마이너스 마진도 필요 X
             }}
           >
             {/* 로그인 유저 정보 */}

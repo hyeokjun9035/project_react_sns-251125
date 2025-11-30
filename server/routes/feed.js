@@ -28,7 +28,10 @@ router.get("/:userId", async (req, res) => {
     console.log(`${req.protocol}://${req.get("host")}`);
     let { userId } = req.params;
     try {
-        let sql = "SELECT * FROM P_FEED F INNER JOIN P_FEED_IMG I ON F.FEEDNO = I.FEEDNO WHERE F.USERID = ? ORDER BY F.FEEDNO DESC";
+        let sql = "SELECT * FROM P_FEED F " 
+                + "INNER JOIN P_FEED_IMG I ON F.FEEDNO = I.FEEDNO "
+                + "INNER JOIN P_USER U ON F.USERID = U.USERID"
+                + "WHERE F.USERID = ? ORDER BY F.FEEDNO DESC";
         let [list] = await db.query(sql, [userId]);
         res.json({
             result: "success",
