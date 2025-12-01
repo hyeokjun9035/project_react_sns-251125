@@ -1,6 +1,6 @@
 // Chat.js
 import React, { useEffect, useRef, useState } from 'react';
-import { io } from "socket.io-client";
+import { io } from 'socket.io-client';
 import {
     Box,
     Container,
@@ -29,7 +29,7 @@ import { useNavigate } from 'react-router-dom';
 
 function Chat() {
     const navigate = useNavigate();
-    const [loginUserId, setLoginUserId] = useState(null); 
+    const [loginUserId, setLoginUserId] = useState(null);
     const [rooms, setRooms] = useState([]);
     const [selectedRoomId, setSelectedRoomId] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -44,26 +44,40 @@ function Chat() {
     const currentMessages = messages;
 
     function fnRoomList() {
-        fetch("http://localhost:3010/chat")
-            .then(res => res.json())
-            .then(data => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('로그인 후 이용바랍니다.');
+            navigate('/');
+            return;
+        }
+
+        const decode = jwtDecode(token);
+        setLoginUserId(decode.userId); // 로그인한 아이디 저장
+
+        fetch('http://localhost:3010/chat', {
+            headers: {
+                Authorization: 'Bearer ' + token,
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
                 console.log(data);
                 setRooms(data.list);
-            })
+            });
     }
 
     function fnMessageList(roomId) {
-        fetch("http://localhost:3010/chat/" + roomId)
-            .then(res => res.json())
-            .then(data => {
-                console.log("message data:", data);
+        fetch('http://localhost:3010/chat/' + roomId)
+            .then((res) => res.json())
+            .then((data) => {
+                console.log('message data:', data);
                 const msgList = data.list.map((row) => ({
-                    id: row.MESSAGEID,      // PK
-                    roomId: row.ROOMID,     // 어떤 방의 메시지인지
+                    id: row.MESSAGEID, // PK
+                    roomId: row.ROOMID, // 어떤 방의 메시지인지
                     senderId: row.SENDERID, // 보낸 사람
-                    text: row.MESSAGE,      // 내용
+                    text: row.MESSAGE, // 내용
                     createdAt: row.CDATETIME, // 시간
-                    readCount: 0,           // 일단 0으로
+                    readCount: 0, // 일단 0으로
                 }));
                 setMessages(msgList);
             });
@@ -90,41 +104,37 @@ function Chat() {
     }, [currentMessages.length, selectedRoomId, currentRoom]);
 
     useEffect(() => {
-        // 백엔드 포트에 맞춰서 작성 (지금 server.js가 3010이면 아래처럼)
-        const socket = io("http://localhost:3010", {
-            transports: ["websocket"],
+        const socket = io('http://localhost:3010', {
+            transports: ['websocket'],
         });
 
         socketRef.current = socket;
 
-        socket.on("connect", () => {
-            console.log("소켓 연결됨:", socket.id);
+        socket.on('connect', () => {
+            console.log('소켓 연결됨:', socket.id);
         });
 
         // 서버에서 메시지 받았을 때
-        socket.on("receive_message", (msg) => {
-            // 메시지 목록에 추가
+        socket.on('receive_message', (msg) => {
             setMessages((prev) => [
                 ...prev,
                 {
-                    // id 는 간단하게 prev 길이 기준으로 붙여줌
                     id: prev.length + 1,
                     roomId: msg.roomId,
                     senderId: msg.senderId,
                     text: msg.text,
-                    createdAt: msg.createdAt || "방금 전",
+                    createdAt: msg.createdAt || '방금 전',
                     readCount: msg.readCount ?? 0,
                 },
             ]);
 
-            // 방 리스트의 lastMessage / lastTime 업데이트
             setRooms((prev) =>
                 prev.map((room) =>
                     room.ROOMID === msg.ROOMID
                         ? {
                             ...room,
                             lastMessage: msg.text,
-                            lastTime: msg.createdAt || "방금 전",
+                            lastTime: msg.createdAt || '방금 전',
                             unreadCount: 0,
                         }
                         : room
@@ -132,16 +142,14 @@ function Chat() {
             );
         });
 
-        socket.on("disconnect", () => {
-            console.log("소켓 연결 종료");
+        socket.on('disconnect', () => {
+            console.log('소켓 연결 종료');
         });
 
-        // 컴포넌트 언마운트 시 연결 끊기
         return () => {
             socket.disconnect();
         };
-    }, []); // 🔴 빈 배열: 처음 렌더링 때 한 번만 실행
-
+    }, []);
 
     const filteredRooms = rooms.filter((room) => {
         if (!roomSearchText.trim()) return true;
@@ -150,20 +158,15 @@ function Chat() {
     });
 
     function getRoomTitle(room, myId) {
-        // 1) 그룹 채팅이면: 방 이름 우선 사용
         if (room.TYPE === 'group') {
             return room.ROOM_NAME || '그룹 채팅';
         }
 
-        // 2) 1:1 채팅이면: USERS 문자열에서 나 말고 다른 사람 찾기
         if (!room.USERS) {
             return '사용자';
         }
 
-        // "me,alice" 같은 문자열을 ["me", "alice"] 배열로 변환
         const userArr = room.USERS.split(',');
-
-        // 내 아이디가 아닌 첫 번째 유저를 찾기
         const other = userArr.find((u) => u !== myId) || userArr[0] || '사용자';
 
         return other;
@@ -180,15 +183,12 @@ function Chat() {
             readCount: 0,
         };
 
-        // 🔥 소켓으로 서버에 전송
         if (socketRef.current) {
-            socketRef.current.emit("send_message", newMsg);
+            socketRef.current.emit('send_message', newMsg);
         }
 
-        // 입력창만 비우기
-        setInputText("");
+        setInputText('');
     };
-
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -205,10 +205,10 @@ function Chat() {
                 pl: 0,
                 pr: 0,
                 width: '100%',
-                height: '95vh',     // 🔴 포인트 1: 항상 뷰포트 전체
+                height: '95vh',
                 boxSizing: 'border-box',
-                bgcolor: '#fff',
-                overflow: 'hidden',  // 페이지 스크롤 X
+                bgcolor: 'radial-gradient(circle at top, #ffe3ee 0, #fff5f8 45%, #ffffff 100%)',
+                overflow: 'hidden',
                 display: 'flex',
             }}
         >
@@ -218,17 +218,19 @@ function Chat() {
                     width: '100%',
                     height: '100%',
                     display: 'flex',
-                    minHeight: 0,      // 내부 스크롤을 위해 필요
+                    minHeight: 0,
                 }}
             >
                 {/* =============== 왼쪽: 방 리스트 =============== */}
                 <Box
                     sx={{
                         width: 340,
-                        borderRight: '1px solid #dbdbdb',
+                        borderRight: '1px solid rgba(255,127,162,0.25)',
                         display: 'flex',
                         flexDirection: 'column',
                         minHeight: 0,
+                        backgroundColor: 'rgba(255,255,255,0.96)',
+                        backdropFilter: 'blur(6px)',
                     }}
                 >
                     {/* 상단 헤더 */}
@@ -239,11 +241,11 @@ function Chat() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            borderBottom: '1px solid #dbdbdb',
+                            borderBottom: '1px solid #f0f0f0',
                             flexShrink: 0,
                         }}
                     >
-                        <Typography sx={{ fontWeight: 700, fontSize: 18 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: 18, color: '#333' }}>
                             메세지
                         </Typography>
                         <IconButton size="small">
@@ -260,11 +262,11 @@ function Chat() {
                                 px: 1.5,
                                 py: 0.5,
                                 borderRadius: 5,
-                                bgcolor: '#f5f5f5',
+                                bgcolor: '#ffeaf1',
                             }}
                             elevation={0}
                         >
-                            <Search sx={{ fontSize: 18, color: '#8e8e8e', mr: 1 }} />
+                            <Search sx={{ fontSize: 18, color: '#ff7fa2', mr: 1 }} />
                             <InputBase
                                 placeholder="검색"
                                 fullWidth
@@ -275,7 +277,7 @@ function Chat() {
                         </Paper>
                     </Box>
 
-                    {/* 방 리스트 (여기만 세로 스크롤) */}
+                    {/* 방 리스트 */}
                     <Box
                         sx={{
                             flex: 1,
@@ -303,7 +305,9 @@ function Chat() {
                                         sx={{
                                             px: 2,
                                             py: 1.2,
-                                            '&.Mui-selected': { bgcolor: '#f0f2ff' },
+                                            '&.Mui-selected': {
+                                                bgcolor: 'rgba(255,127,162,0.12)',
+                                            },
                                         }}
                                     >
                                         <ListItemAvatar>
@@ -327,6 +331,7 @@ function Chat() {
                                                     sx={{
                                                         fontWeight: isUnread ? 700 : 500,
                                                         fontSize: 14,
+                                                        color: '#333',
                                                     }}
                                                 >
                                                     {title}
@@ -379,7 +384,9 @@ function Chat() {
                         flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        minHeight: 0,     // 가운데 영역이 스크롤되도록
+                        minHeight: 0,
+                        backgroundColor: 'rgba(255,255,255,0.9)',
+                        backdropFilter: 'blur(4px)',
                     }}
                 >
                     {/* 상단 헤더 */}
@@ -389,7 +396,7 @@ function Chat() {
                             px: 2,
                             display: 'flex',
                             alignItems: 'center',
-                            borderBottom: '1px solid #dbdbdb',
+                            borderBottom: '1px solid #f0f0f0',
                             flexShrink: 0,
                         }}
                     >
@@ -407,9 +414,12 @@ function Chat() {
                                     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
                                         {getRoomTitle(currentRoom, loginUserId)}
                                     </Typography>
-                                    <Typography sx={{ fontSize: 12, color: '#8e8e8e' }} noWrap>
+                                    <Typography
+                                        sx={{ fontSize: 12, color: '#8e8e8e' }}
+                                        noWrap
+                                    >
                                         {currentRoom.TYPE === 'group'
-                                            ? (currentRoom.ROOM_NAME || '그룹 채팅')
+                                            ? currentRoom.ROOM_NAME || '그룹 채팅'
                                             : '1:1 채팅'}
                                     </Typography>
                                 </Box>
@@ -422,7 +432,7 @@ function Chat() {
                         )}
                     </Box>
 
-                    {/* 방 선택 전: 인스타 "내 메세지" 화면 */}
+                    {/* 방 선택 전 화면 */}
                     {!currentRoom && (
                         <Box
                             sx={{
@@ -432,7 +442,7 @@ function Chat() {
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                bgcolor: '#fff',
+                                bgcolor: 'transparent',
                             }}
                         >
                             <Box
@@ -440,20 +450,22 @@ function Chat() {
                                     width: 90,
                                     height: 90,
                                     borderRadius: '50%',
-                                    border: '2px solid #262626',
+                                    border: '2px solid #ff4f81',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     mb: 3,
                                 }}
                             >
-                                <NearMeOutlined sx={{ fontSize: 48 }} />
+                                <NearMeOutlined sx={{ fontSize: 48, color: '#ff4f81' }} />
                             </Box>
                             <Typography sx={{ fontSize: 22, fontWeight: 300, mb: 1 }}>
                                 내 메세지
                             </Typography>
-                            <Typography sx={{ fontSize: 14, color: '#8e8e8e', mb: 3 }}>
-                                친구나 그룹에 비공개 사진과 메세지를 보내보세요.
+                            <Typography
+                                sx={{ fontSize: 14, color: '#8e8e8e', mb: 3 }}
+                            >
+                                둘만의 대화를 시작해 보세요.
                             </Typography>
                             <Button
                                 variant="contained"
@@ -462,6 +474,13 @@ function Chat() {
                                     borderRadius: 3,
                                     px: 3,
                                     fontWeight: 600,
+                                    background:
+                                        'linear-gradient(135deg, #ff9fb8, #ff7fa2)',
+                                    boxShadow: '0 10px 20px rgba(255,79,129,0.35)',
+                                    '&:hover': {
+                                        background:
+                                            'linear-gradient(135deg, #ff7fa2, #ff4f81)',
+                                    },
                                 }}
                             >
                                 메세지 보내기
@@ -472,7 +491,7 @@ function Chat() {
                     {/* 방 선택 후: 채팅 내용 + 입력창 */}
                     {currentRoom && (
                         <>
-                            {/* 메시지 영역 (여기만 스크롤) */}
+                            {/* 메시지 영역 */}
                             <Box
                                 ref={messagesContainerRef}
                                 sx={{
@@ -480,7 +499,7 @@ function Chat() {
                                     minHeight: 0,
                                     p: 2,
                                     overflowY: 'auto',
-                                    bgcolor: '#fafafa',
+                                    bgcolor: '#fff5f8',
                                     '&::-webkit-scrollbar': {
                                         display: 'none',
                                     },
@@ -526,7 +545,9 @@ function Chat() {
                                                         <Box sx={{ mr: 1.2 }}>
                                                             {showAvatar ? (
                                                                 <Avatar sx={{ width: 30, height: 30 }}>
-                                                                    {msg.senderId.charAt(0).toUpperCase()}
+                                                                    {msg.senderId
+                                                                        .charAt(0)
+                                                                        .toUpperCase()}
                                                                 </Avatar>
                                                             ) : (
                                                                 <Box sx={{ width: 30 }} />
@@ -539,15 +560,22 @@ function Chat() {
                                                             maxWidth: '60%',
                                                             display: 'flex',
                                                             flexDirection: 'column',
-                                                            alignItems: isMine ? 'flex-end' : 'flex-start',
+                                                            alignItems: isMine
+                                                                ? 'flex-end'
+                                                                : 'flex-start',
                                                         }}
                                                     >
                                                         <Box
                                                             sx={{
-                                                                px: 1.5,
+                                                                px: 1.7,
                                                                 py: 1,
                                                                 borderRadius: 3,
-                                                                bgcolor: isMine ? '#0095f6' : '#e4e6eb',
+                                                                bgcolor: isMine
+                                                                    ? '#ff7fa2'
+                                                                    : '#ffffff',
+                                                                border: isMine
+                                                                    ? 'none'
+                                                                    : '1px solid #ffd1e0',
                                                                 color: isMine ? '#fff' : '#000',
                                                                 fontSize: 14,
                                                                 whiteSpace: 'pre-wrap',
@@ -575,11 +603,13 @@ function Chat() {
                                                                         fontSize: 11,
                                                                         color:
                                                                             msg.readCount > 0
-                                                                                ? '#0095f6'
+                                                                                ? '#ff4f81'
                                                                                 : '#aaaaaa',
                                                                     }}
                                                                 >
-                                                                    {msg.readCount > 0 ? '읽음' : '전송됨'}
+                                                                    {msg.readCount > 0
+                                                                        ? '읽음'
+                                                                        : '전송됨'}
                                                                 </Typography>
                                                             )}
                                                         </Box>
@@ -592,16 +622,17 @@ function Chat() {
                                 )}
                             </Box>
 
-                            {/* 입력창 (항상 아래 고정) */}
+                            {/* 입력창 */}
                             <Box
                                 sx={{
-                                    borderTop: '1px solid #dbdbdb',
+                                    borderTop: '1px solid #f0f0f0',
                                     px: 2,
                                     py: 1.5,
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: 1,
-                                    flexShrink: 0,   // 밑으로 밀리지 않음
+                                    flexShrink: 0,
+                                    bgcolor: '#ffffff',
                                 }}
                             >
                                 <IconButton size="small">
@@ -637,7 +668,7 @@ function Chat() {
                                 >
                                     <Send
                                         sx={{
-                                            color: inputText.trim() ? '#0095f6' : '#c0c0c0',
+                                            color: inputText.trim() ? '#ff4f81' : '#c0c0c0',
                                         }}
                                     />
                                 </IconButton>

@@ -1,4 +1,3 @@
-// MyPage.js
 import React, { useEffect, useRef, useState } from 'react';
 import { useCreatePost } from './CreatePostContext';
 import {
@@ -23,7 +22,7 @@ import {
   Popover,
   Menu,
   MenuItem,
-  ButtonBase
+  ButtonBase,
 } from '@mui/material';
 import EmojiPicker from 'emoji-picker-react';
 import {
@@ -38,7 +37,7 @@ import {
   ChevronRight,
   PhotoCamera,
   AccountCircle,
-  MoreVert
+  MoreVert,
 } from '@mui/icons-material';
 
 import { jwtDecode } from 'jwt-decode';
@@ -48,8 +47,8 @@ function MyPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState();
   const [feeds, setFeeds] = useState([]);
-  const [activeTab, setActiveTab] = useState('posts'); // 'posts' | 'saved' | 'tagged'
-  const [profilePreview, setProfilePreview] = useState(null); // 프로필 미리보기
+  const [activeTab, setActiveTab] = useState('posts');
+  const [profilePreview, setProfilePreview] = useState(null);
   const { setOpenCreate } = useCreatePost();
 
   // 댓글 관련
@@ -69,7 +68,6 @@ function MyPage() {
     setEmojiAnchorEl(null);
   };
 
-  // 이모지 선택 시 댓글에 붙이기 + 커서 유지
   const handleEmojiClick = (emojiData) => {
     setNewComment((prev) => prev + emojiData.emoji);
     setTimeout(() => {
@@ -81,17 +79,14 @@ function MyPage() {
   const [followers, setFollowers] = useState([]);
   const [followings, setFollowings] = useState([]);
 
-  // 팔로워 / 팔로잉 모달 탭
   const [followTab, setFollowTab] = useState('followers');
-
-  // 팔로워 모달
   const [OpenFollow, setOpenFollow] = useState(false);
 
   // 피드 상세 모달
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedFeed, setSelectedFeed] = useState(null);
   const [selectedFeedIndex, setSelectedFeedIndex] = useState(null);
-  const [imageIndex, setImageIndex] = useState(0); // 피드 내 사진 인덱스
+  const [imageIndex, setImageIndex] = useState(0);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -150,7 +145,6 @@ function MyPage() {
 
     const decode = jwtDecode(token);
 
-    // 팔로워
     fetch('http://localhost:3010/user/' + decode.userId + '/followers', {
       headers: {
         Authorization: 'Bearer ' + token,
@@ -161,7 +155,6 @@ function MyPage() {
         setFollowers(data.list || []);
       });
 
-    // 팔로잉
     fetch('http://localhost:3010/user/' + decode.userId + '/followings', {
       headers: {
         Authorization: 'Bearer ' + token,
@@ -176,8 +169,6 @@ function MyPage() {
   const handleFollow = (targetId) => {
     const token = localStorage.getItem('token');
     if (token) {
-      const decode = jwtDecode(token);
-
       const param = {
         targetId: targetId,
       };
@@ -205,8 +196,6 @@ function MyPage() {
   const handleUnfollow = (targetId) => {
     const token = localStorage.getItem('token');
     if (token) {
-      const decode = jwtDecode(token);
-
       const param = {
         targetId: targetId,
       };
@@ -234,8 +223,6 @@ function MyPage() {
   const handleRemoveFollower = (targetId) => {
     const token = localStorage.getItem('token');
     if (token) {
-      const decode = jwtDecode(token);
-
       const param = {
         targetId: targetId,
       };
@@ -298,7 +285,6 @@ function MyPage() {
     }
   }
 
-  // 프로필 이미지 변경
   function handleProfileFileChange(event) {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -336,7 +322,6 @@ function MyPage() {
       });
   }
 
-  // 피드 이동 (이전/다음)
   const moveFeed = (direction) => {
     if (selectedFeedIndex === null || feeds.length === 0) return;
 
@@ -357,7 +342,6 @@ function MyPage() {
     fnFollowLists();
   }, []);
 
-  // ▶ 피드 상세 모달 열기
   const handleClickOpen = (feed, index) => {
     setSelectedFeed(feed);
     setSelectedFeedIndex(index);
@@ -371,7 +355,6 @@ function MyPage() {
     setNewComment('');
   };
 
-  // ▶ 피드 상세 모달 닫기
   const handleCloseDetail = () => {
     setOpenDetail(false);
     setSelectedFeed(null);
@@ -379,14 +362,12 @@ function MyPage() {
     setNewComment('');
   };
 
-  // ▶ 댓글 추가
   const handleAddComment = () => {
     if (!newComment.trim()) return;
     setComments((prev) => [...prev, { id: 'currentUser', text: newComment }]);
     setNewComment('');
   };
 
-  // 팔로우 모달 열기/닫기
   const handleOpenFollow = () => {
     fnFollowLists();
     setOpenFollow(true);
@@ -397,7 +378,15 @@ function MyPage() {
   };
 
   return (
-    <Container maxWidth="md">
+    <Container
+      maxWidth="md"
+      sx={{
+        minHeight: '100vh',
+        py: 4,
+        background:
+          'radial-gradient(circle at top right, #ffe3ee 0, #fff5f8 50%, #ffffff 100%)',
+      }}
+    >
       {/* 프로필 영역 */}
       <Box
         display="flex"
@@ -405,9 +394,13 @@ function MyPage() {
         alignItems="center"
         justifyContent="flex-start"
         sx={{
-          marginTop: 5,
-          paddingX: 3,
-          paddingY: 2,
+          mt: 5,
+          px: 3,
+          py: 3,
+          borderRadius: 4,
+          backgroundColor: 'rgba(255,255,255,0.96)',
+          boxShadow: '0 18px 40px rgba(0,0,0,0.06)',
+          border: '1px solid rgba(255,127,162,0.18)',
         }}
       >
         {/* 프로필 사진 + 업로드 버튼 */}
@@ -419,7 +412,6 @@ function MyPage() {
             mr: 5,
           }}
         >
-          {/* 실제 파일 인풋 (숨김) */}
           <input
             accept="image/*"
             style={{ display: 'none' }}
@@ -428,7 +420,6 @@ function MyPage() {
             onChange={handleProfileFileChange}
           />
 
-          {/* 아바타 (클릭하면 파일 선택) */}
           <label htmlFor="profile-upload" style={{ cursor: 'pointer' }}>
             <Box
               sx={{
@@ -443,10 +434,12 @@ function MyPage() {
                   height: '100%',
                   borderRadius: '50%',
                   overflow: 'hidden',
-                  bgcolor: '#efefef',
+                  bgcolor: '#ffeaf1',
+                  border: '3px solid rgba(255,127,162,0.65)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  boxShadow: '0 12px 25px rgba(255,127,162,0.35)',
                 }}
               >
                 {profilePreview || user?.PROFILE_IMG ? (
@@ -457,7 +450,7 @@ function MyPage() {
                     sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 ) : (
-                  <AccountCircle sx={{ fontSize: 180, color: '#c7c7c7' }} />
+                  <AccountCircle sx={{ fontSize: 180, color: '#f0b6c8' }} />
                 )}
               </Box>
 
@@ -465,8 +458,8 @@ function MyPage() {
                 <Box
                   sx={{
                     position: 'absolute',
-                    bottom: 40,
-                    right: 40,
+                    bottom: 4,
+                    right: 4,
                     width: 40,
                     height: 40,
                     borderRadius: '50%',
@@ -474,7 +467,7 @@ function MyPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: 1,
+                    boxShadow: '0 8px 18px rgba(0,0,0,0.15)',
                   }}
                 >
                   <PhotoCamera sx={{ fontSize: 20, color: '#555' }} />
@@ -487,23 +480,35 @@ function MyPage() {
         {/* 프로필 텍스트 영역 */}
         <Box>
           <Box display="flex" alignItems="center" gap={2}>
-            <Typography variant="h5" sx={{ fontWeight: 300 }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 500, fontSize: 22, color: '#333' }}
+            >
               {user?.USERID}
             </Typography>
             <Button
               variant="outlined"
               sx={{
                 textTransform: 'none',
-                borderRadius: '8px',
+                borderRadius: '999px',
                 height: '32px',
                 fontSize: '14px',
+                px: 2.5,
+                borderColor: 'rgba(0,0,0,0.2)',
+                '&:hover': {
+                  borderColor: '#ff7fa2',
+                  backgroundColor: '#fff5fa',
+                },
               }}
             >
               프로필 편집
             </Button>
           </Box>
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 300 }}>
+          <Box sx={{ mt: 1 }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 500, fontSize: 18, color: '#444' }}
+            >
               {user?.USERNAME}
             </Typography>
           </Box>
@@ -512,12 +517,12 @@ function MyPage() {
           <Box
             display="flex"
             gap={4}
-            sx={{ marginTop: 2, fontSize: '14px' }}
+            sx={{ mt: 2, fontSize: '14px', color: '#444' }}
           >
             <Typography>
               <strong>{user?.cnt}</strong> 게시물
             </Typography>
-            <Typography>
+            <Typography sx={{ display: 'flex', alignItems: 'center' }}>
               <strong>{user?.follower}</strong>
               <Box
                 onClick={() => {
@@ -528,14 +533,17 @@ function MyPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: 2,
+                  ml: 0.5,
+                  mb: 0.2,
                   cursor: 'pointer',
+                  color: '#555',
+                  '&:hover': { textDecoration: 'underline' },
                 }}
               >
                 팔로워 {followers.length}
               </Box>
             </Typography>
-            <Typography>
+            <Typography sx={{ display: 'flex', alignItems: 'center' }}>
               <strong>{user?.following}</strong>
               <Box
                 onClick={() => {
@@ -546,8 +554,11 @@ function MyPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: 2,
+                  ml: 0.5,
+                  mb: 0.2,
                   cursor: 'pointer',
+                  color: '#555',
+                  '&:hover': { textDecoration: 'underline' },
                 }}
               >
                 팔로우 {followings.length}
@@ -556,25 +567,24 @@ function MyPage() {
           </Box>
 
           {/* 소개글 */}
-          <Box sx={{ marginTop: 2 }}>
-            <Typography variant="body1" sx={{ fontWeight: 500 }}>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body1" sx={{ fontWeight: 500, color: '#555' }}>
               {user?.intro}
             </Typography>
           </Box>
         </Box>
       </Box>
 
-      {/* 인스타그램 스타일 탭 바 */}
+      {/* 탭 바 */}
       <Box
         sx={{
-          marginTop: 4,
-          borderBottom: '1px solid #dbdbdb',
+          mt: 4,
+          borderBottom: '1px solid #e6e6e6',
           display: 'flex',
           justifyContent: 'center',
         }}
       >
         <Box sx={{ display: 'flex', gap: 8 }}>
-          {/* 게시물 탭 */}
           <Box
             onClick={() => setActiveTab('posts')}
             sx={{
@@ -582,27 +592,26 @@ function MyPage() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              paddingY: 1.5,
+              py: 1.5,
             }}
           >
             <GridOn
               sx={{
                 fontSize: 22,
-                color: activeTab === 'posts' ? '#262626' : '#8e8e8e',
+                color: activeTab === 'posts' ? '#262626' : '#b1b1b1',
               }}
             />
             <Box
               sx={{
-                marginTop: 1,
+                mt: 1,
                 width: 28,
                 height: 2,
                 backgroundColor:
-                  activeTab === 'posts' ? '#262626' : 'transparent',
+                  activeTab === 'posts' ? '#ff4f81' : 'transparent',
               }}
             />
           </Box>
 
-          {/* 저장됨 탭 */}
           <Box
             onClick={() => setActiveTab('saved')}
             sx={{
@@ -610,27 +619,26 @@ function MyPage() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              paddingY: 1.5,
+              py: 1.5,
             }}
           >
             <BookmarkBorder
               sx={{
                 fontSize: 22,
-                color: activeTab === 'saved' ? '#262626' : '#8e8e8e',
+                color: activeTab === 'saved' ? '#262626' : '#b1b1b1',
               }}
             />
             <Box
               sx={{
-                marginTop: 1,
+                mt: 1,
                 width: 28,
                 height: 2,
                 backgroundColor:
-                  activeTab === 'saved' ? '#262626' : 'transparent',
+                  activeTab === 'saved' ? '#ff4f81' : 'transparent',
               }}
             />
           </Box>
 
-          {/* 태그된 사진 탭 */}
           <Box
             onClick={() => setActiveTab('tagged')}
             sx={{
@@ -638,22 +646,22 @@ function MyPage() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              paddingY: 1.5,
+              py: 1.5,
             }}
           >
             <PersonPin
               sx={{
                 fontSize: 22,
-                color: activeTab === 'tagged' ? '#262626' : '#8e8e8e',
+                color: activeTab === 'tagged' ? '#262626' : '#b1b1b1',
               }}
             />
             <Box
               sx={{
-                marginTop: 1,
+                mt: 1,
                 width: 28,
                 height: 2,
                 backgroundColor:
-                  activeTab === 'tagged' ? '#262626' : 'transparent',
+                  activeTab === 'tagged' ? '#ff4f81' : 'transparent',
               }}
             />
           </Box>
@@ -673,9 +681,11 @@ function MyPage() {
                     <Grid item xs={12} sm={6} md={4} key={feed.FEEDNO}>
                       <Card
                         sx={{
-                          boxShadow: 2,
-                          borderRadius: 2,
+                          boxShadow: '0 10px 24px rgba(0,0,0,0.08)',
+                          borderRadius: 3,
                           overflow: 'hidden',
+                          border: '1px solid rgba(255,127,162,0.18)',
+                          cursor: 'pointer',
                         }}
                       >
                         <CardMedia
@@ -685,10 +695,13 @@ function MyPage() {
                           alt={firstImage.IMGNAME}
                           onClick={() => handleClickOpen(feed, index)}
                           sx={{
-                            cursor: 'pointer',
                             maxHeight: '600px',
                             objectFit: 'cover',
-                            '&:hover': { opacity: 0.9 },
+                            transition: 'transform 0.25s ease, opacity 0.25s ease',
+                            '&:hover': {
+                              opacity: 0.9,
+                              transform: 'scale(1.02)',
+                            },
                           }}
                         />
                       </Card>
@@ -696,21 +709,23 @@ function MyPage() {
                   );
                 })}
 
-                {/* "만들기" 카드 */}
+                {/* 만들기 카드 */}
                 <Grid item xs={12} sm={6} md={4}>
                   <Card
                     onClick={() => setOpenCreate(true)}
                     sx={{
-                      boxShadow: 2,
-                      borderRadius: 2,
+                      boxShadow: '0 8px 18px rgba(0,0,0,0.08)',
+                      borderRadius: 3,
                       height: 350,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       cursor: 'pointer',
-                      border: '2px solid #ccc',
+                      border: '2px dashed rgba(255,127,162,0.6)',
+                      background:
+                        'repeating-linear-gradient(135deg, #fff9fc 0, #fff9fc 6px, #ffffff 6px, #ffffff 12px)',
                       '&:hover': {
-                        backgroundColor: '#fafafa',
+                        backgroundColor: '#fff0f7',
                       },
                     }}
                   >
@@ -722,17 +737,22 @@ function MyPage() {
                         gap: 1,
                       }}
                     >
-                      <AddRounded sx={{ fontSize: 40 }} />
+                      <AddRounded sx={{ fontSize: 40, color: '#ff4f81' }} />
+                      <Typography
+                        variant="body2"
+                        sx={{ color: '#ff4f81', fontWeight: 600 }}
+                      >
+                        새 기록 추가
+                      </Typography>
                     </Box>
                   </Card>
                 </Grid>
               </>
             ) : (
-              // 게시물이 하나도 없을 때
               <Box
                 sx={{
                   width: '100%',
-                  marginTop: 8,
+                  mt: 8,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -744,12 +764,13 @@ function MyPage() {
                     width: 80,
                     height: 80,
                     borderRadius: '50%',
-                    border: '2px solid #262626',
+                    border: '2px solid #ff4f81',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginBottom: 2,
+                    mb: 2,
                     cursor: 'pointer',
+                    color: '#ff4f81',
                   }}
                 >
                   <PhotoCameraOutlined sx={{ fontSize: 40 }} />
@@ -757,14 +778,14 @@ function MyPage() {
 
                 <Typography
                   variant="h5"
-                  sx={{ fontWeight: 600, marginBottom: 1 }}
+                  sx={{ fontWeight: 600, mb: 1, color: '#333' }}
                 >
                   사진 공유
                 </Typography>
 
                 <Typography
                   variant="body2"
-                  sx={{ color: '#8e8e8e', marginBottom: 3 }}
+                  sx={{ color: '#8e8e8e', mb: 3 }}
                 >
                   사진을 공유하면 회원님의 프로필에 표시됩니다.
                 </Typography>
@@ -774,10 +795,9 @@ function MyPage() {
                   onClick={() => setOpenCreate(true)}
                   sx={{
                     textTransform: 'none',
-                    color: '#0095f6',
+                    color: '#ff4f81',
                     fontWeight: 600,
                     fontSize: '14px',
-                    marginRight: 200,
                   }}
                 >
                   첫 사진 공유하기
@@ -788,21 +808,30 @@ function MyPage() {
         </Box>
       )}
 
-      {/* saved / tagged 탭 */}
       {activeTab === 'saved' && (
-        <Box sx={{ marginTop: 6, textAlign: 'center', color: '#8e8e8e' }}>
+        <Box sx={{ mt: 6, textAlign: 'center', color: '#8e8e8e' }}>
           저장된 게시물이 없습니다.
         </Box>
       )}
       {activeTab === 'tagged' && (
-        <Box sx={{ marginTop: 6, textAlign: 'center', color: '#8e8e8e' }}>
+        <Box sx={{ mt: 6, textAlign: 'center', color: '#8e8e8e' }}>
           태그된 사진이 없습니다.
         </Box>
       )}
 
       {/* 팔로워 / 팔로잉 모달 */}
-      <Dialog open={OpenFollow} onClose={handleCloseFollow} fullWidth maxWidth="xs">
-        <DialogTitle>
+      <Dialog
+        open={OpenFollow}
+        onClose={handleCloseFollow}
+        fullWidth
+        maxWidth="xs"
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+          },
+        }}
+      >
+        <DialogTitle sx={{ textAlign: 'center', fontWeight: 600 }}>
           {followTab === 'followers' ? '팔로워' : '팔로잉'}
         </DialogTitle>
 
@@ -821,15 +850,12 @@ function MyPage() {
                 >
                   <Avatar src={item.PROFILE_IMG || undefined} />
 
-                  {/* 가운데 영역: 아이디 + (· 팔로우) + 이름 */}
                   <Box sx={{ flex: 1, ml: 2 }}>
-                    {/* 첫 줄: 아이디 + 팔로우 텍스트 */}
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Typography sx={{ fontWeight: 600 }}>
                         {item.USERID}
                       </Typography>
 
-                      {/* 내가 그 사람을 팔로우하지 않은 경우에만 파란 '· 팔로우' 표시 */}
                       {!item.IS_FOLLOWING && (
                         <ButtonBase
                           onClick={() => handleFollow(item.USERID)}
@@ -847,13 +873,11 @@ function MyPage() {
                       )}
                     </Box>
 
-                    {/* 둘째 줄: 이름 */}
                     <Typography variant="body2" color="text.secondary">
                       {item.USERNAME}
                     </Typography>
                   </Box>
 
-                  {/* 오른쪽 끝: 삭제 버튼 (항상 표시) */}
                   <Button
                     variant="outlined"
                     size="small"
@@ -877,8 +901,6 @@ function MyPage() {
                   }}
                 >
                   <Avatar src={item.PROFILE_IMG || undefined} />
-
-                  {/* 가운데: 아이디 + 이름 */}
                   <Box sx={{ flex: 1, ml: 2 }}>
                     <Typography sx={{ fontWeight: 600 }}>
                       {item.USERID}
@@ -888,7 +910,6 @@ function MyPage() {
                     </Typography>
                   </Box>
 
-                  {/* 오른쪽: 팔로잉 버튼 */}
                   <Button
                     variant="outlined"
                     size="small"
@@ -925,12 +946,11 @@ function MyPage() {
         fullScreen
         PaperProps={{
           sx: {
-            backgroundColor: 'rgba(0,0,0,0.5)',
+            backgroundColor: 'rgba(0,0,0,0.55)',
             boxShadow: 'none',
           },
         }}
       >
-        {/* 닫기 버튼 */}
         <IconButton
           edge="end"
           color="inherit"
@@ -942,15 +962,15 @@ function MyPage() {
             top: 24,
             zIndex: 1301,
             color: '#fff',
+            backgroundColor: 'rgba(0,0,0,0.45)',
             '&:hover': {
-              Color: 'rgba(0,0,0,0.8)',
+              backgroundColor: 'rgba(0,0,0,0.7)',
             },
           }}
         >
           <CloseOutlined />
         </IconButton>
 
-        {/* 왼쪽/오른쪽 피드 이동 */}
         <IconButton
           onClick={() => moveFeed('prev')}
           disabled={selectedFeedIndex === 0}
@@ -989,7 +1009,6 @@ function MyPage() {
           <ChevronRight />
         </IconButton>
 
-        {/* 가운데 카드 */}
         <Box
           sx={{
             width: '100%',
@@ -997,6 +1016,7 @@ function MyPage() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            px: 2,
           }}
         >
           <Box
@@ -1009,6 +1029,7 @@ function MyPage() {
               overflow: 'hidden',
               display: 'flex',
               bgcolor: '#fff',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.45)',
             }}
           >
             {/* 왼쪽: 이미지 영역 */}
@@ -1035,7 +1056,7 @@ function MyPage() {
                         sx={{
                           width: '100%',
                           height: '100%',
-                          objectFit: 'cover',     // 🔥 세로 기준 꽉 채우기 (Feed랑 동일)
+                          objectFit: 'cover',
                         }}
                       />
                     );
@@ -1074,7 +1095,7 @@ function MyPage() {
                         sx={{
                           position: 'absolute',
                           right: 16,
-                          top: '50%',           // ✅ 점 빼고 top만 남기기
+                          top: '50%',
                           transform: 'translateY(-50%)',
                           color: '#fff',
                           backgroundColor: 'rgba(0,0,0,0.4)',
@@ -1085,7 +1106,6 @@ function MyPage() {
                       >
                         <ChevronRight />
                       </IconButton>
-
 
                       <Box
                         sx={{
@@ -1124,15 +1144,14 @@ function MyPage() {
                 flexGrow: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                borderLeft: '1px solid #dbdbdb',
+                borderLeft: '1px solid #f0f0f0',
                 backgroundColor: '#fff',
               }}
             >
-              {/* 상단 프로필 영역 */}
               <Box
                 sx={{
                   p: 2,
-                  borderBottom: '1px solid #dbdbdb',
+                  borderBottom: '1px solid #f0f0f0',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 1,
@@ -1140,7 +1159,7 @@ function MyPage() {
               >
                 <Avatar
                   alt="프로필 이미지"
-                  src="https://images.unsplash.com/photo-1551963831-b3b1ca40c98e"
+                  src={user?.PROFILE_IMG || undefined}
                   sx={{ width: 32, height: 32 }}
                 />
                 <Typography sx={{ fontWeight: 600 }}>{user?.USERID}</Typography>
@@ -1163,12 +1182,11 @@ function MyPage() {
                 </Menu>
               </Box>
 
-              {/* 캡션 + 댓글 리스트 */}
               <Box sx={{ flex: 1, p: 2, overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Avatar
                     alt="프로필 이미지"
-                    src="https://images.unsplash.com/photo-1551963831-b3b1ca40c98e"
+                    src={user?.PROFILE_IMG || undefined}
                     sx={{ width: 32, height: 32, mr: 1 }}
                   />
                   <Typography variant="body2">
@@ -1180,7 +1198,9 @@ function MyPage() {
                   {comments.map((comment, index) => (
                     <ListItem key={index} sx={{ px: 0 }}>
                       <ListItemAvatar>
-                        <Avatar>{comment.id.charAt(0).toUpperCase()}</Avatar>
+                        <Avatar>
+                          {comment.id.charAt(0).toUpperCase()}
+                        </Avatar>
                       </ListItemAvatar>
                       <ListItemText
                         primary={
@@ -1194,10 +1214,9 @@ function MyPage() {
                 </List>
               </Box>
 
-              {/* 하단: 댓글 입력 + 버튼 */}
               <Box
                 sx={{
-                  borderTop: '1px solid #dbdbdb',
+                  borderTop: '1px solid #f0f0f0',
                   display: 'flex',
                   alignItems: 'center',
                   px: 2,
@@ -1205,8 +1224,8 @@ function MyPage() {
                   gap: 1.5,
                 }}
               >
-                <IconButton size="small" onClick={(e) => handleEmojiButtonClick(e)}>
-                  <InsertEmoticon fontSize="small" />
+                <IconButton size="small" onClick={handleEmojiButtonClick}>
+                  <InsertEmoticon fontSize="small" sx={{ color: '#ff7fa2' }} />
                 </IconButton>
 
                 <InputBase
@@ -1227,7 +1246,7 @@ function MyPage() {
                     textTransform: 'none',
                     fontSize: 14,
                     fontWeight: 600,
-                    color: '#0095f6',
+                    color: '#ff4f81',
                     opacity: newComment.trim() ? 1 : 0.3,
                   }}
                 >
@@ -1245,7 +1264,7 @@ function MyPage() {
         anchorEl={emojiAnchorEl}
         onClose={handleEmojiClose}
         anchorOrigin={{
-          vertical: 'top',   // 댓글 위쪽에 뜨게
+          vertical: 'top',
           horizontal: 'left',
         }}
         transformOrigin={{
@@ -1256,11 +1275,7 @@ function MyPage() {
         disableEnforceFocus
         disableRestoreFocus
       >
-        <EmojiPicker
-          onEmojiClick={handleEmojiClick}
-          width={300}
-          height={400}
-        />
+        <EmojiPicker onEmojiClick={handleEmojiClick} width={300} height={400} />
       </Popover>
     </Container>
   );

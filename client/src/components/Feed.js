@@ -253,11 +253,15 @@ function Feed() {
         pr: 8,
         boxSizing: 'border-box',
         overflowX: 'hidden',
+        minHeight: '100vh',
+        py: 4,
+        background:
+          'radial-gradient(circle at top left, #ffe3ee 0, #fff5f8 50%, #ffffff 100%)',
       }}
     >
       {/* 메인 레이아웃: 피드 + 오른쪽 사이드바 */}
       <Box
-        mt={4}
+        mt={2}
         sx={{
           display: 'flex',
           alignItems: 'flex-start',
@@ -265,6 +269,7 @@ function Feed() {
           maxWidth: 960,
           width: '100%',
           mx: 'auto',
+          gap: 4,
         }}
       >
         {/* 중앙 피드 컬럼 */}
@@ -279,9 +284,12 @@ function Feed() {
                   key={feed.FEEDNO}
                   sx={{
                     mb: 4,
-                    boxShadow: 3,
-                    borderRadius: 2,
+                    borderRadius: 4,
                     overflow: 'hidden',
+                    boxShadow: '0 18px 40px rgba(0,0,0,0.08)',
+                    backgroundColor: 'rgba(255,255,255,0.98)',
+                    border: '1px solid rgba(255,127,162,0.18)',
+                    backdropFilter: 'blur(6px)',
                   }}
                 >
                   {/* 작성자 영역 */}
@@ -292,10 +300,20 @@ function Feed() {
                       gap: 1.2,
                       px: 2,
                       py: 1.5,
+                      borderBottom: '1px solid #f3f3f3',
                     }}
                   >
-                    <Avatar src={feed.PROFILE_IMG || undefined} />
-                    <Typography sx={{ fontWeight: 700 }}>
+                    <Avatar
+                      src={feed.PROFILE_IMG || undefined}
+                      sx={{ width: 38, height: 38 }}
+                    />
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: 14,
+                        color: '#333',
+                      }}
+                    >
                       {feed.USERID}
                     </Typography>
                   </Box>
@@ -306,7 +324,7 @@ function Feed() {
                       position: 'relative',
                       width: '100%',
                       height: 600,
-                      bgcolor: 'black',
+                      bgcolor: '#000',
                       overflow: 'hidden',
                     }}
                   >
@@ -328,17 +346,24 @@ function Feed() {
                           sx={{
                             position: 'absolute',
                             top: '50%',
-                            left: 8,
+                            left: 12,
                             transform: 'translateY(-50%)',
-                            bgcolor: 'rgba(0,0,0,0.4)',
+                            bgcolor: 'rgba(0,0,0,0.45)',
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            width: 32,
-                            height: 32,
+                            width: 34,
+                            height: 34,
                             cursor: currentIndex === 0 ? 'default' : 'pointer',
                             opacity: currentIndex === 0 ? 0.3 : 1,
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                              transform:
+                                currentIndex === 0
+                                  ? 'translateY(-50%)'
+                                  : 'translateY(-50%) scale(1.05)',
+                            },
                           }}
                           onClick={() =>
                             handleChangeImage(
@@ -355,21 +380,28 @@ function Feed() {
                           sx={{
                             position: 'absolute',
                             top: '50%',
-                            right: 8,
+                            right: 12,
                             transform: 'translateY(-50%)',
-                            bgcolor: 'rgba(0,0,0,0.4)',
+                            bgcolor: 'rgba(0,0,0,0.45)',
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            width: 32,
-                            height: 32,
+                            width: 34,
+                            height: 34,
                             cursor:
                               currentIndex === feed.images.length - 1
                                 ? 'default'
                                 : 'pointer',
                             opacity:
                               currentIndex === feed.images.length - 1 ? 0.3 : 1,
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                              transform:
+                                currentIndex === feed.images.length - 1
+                                  ? 'translateY(-50%)'
+                                  : 'translateY(-50%) scale(1.05)',
+                            },
                           }}
                           onClick={() =>
                             handleChangeImage(
@@ -397,12 +429,12 @@ function Feed() {
                             <Box
                               key={idx}
                               sx={{
-                                width: 6,
-                                height: 6,
+                                width: 7,
+                                height: 7,
                                 borderRadius: '50%',
                                 bgcolor:
                                   idx === currentIndex
-                                    ? '#fff'
+                                    ? '#fffdfe'
                                     : 'rgba(255,255,255,0.5)',
                               }}
                             />
@@ -422,27 +454,60 @@ function Feed() {
                       py: 1.2,
                     }}
                   >
-                    <Typography sx={{ cursor: 'pointer' }}>❤️</Typography>
                     <Typography
-                      sx={{ cursor: 'pointer' }}
+                      sx={{
+                        cursor: 'pointer',
+                        fontSize: 22,
+                        transition: 'transform 0.15s ease',
+                        '&:hover': {
+                          transform: 'scale(1.15)',
+                        },
+                      }}
+                    >
+                      ❤️
+                    </Typography>
+                    <Typography
+                      sx={{
+                        cursor: 'pointer',
+                        fontSize: 20,
+                        transition: 'transform 0.15s ease',
+                        '&:hover': {
+                          transform: 'scale(1.15)',
+                        },
+                      }}
                       onClick={() => handleOpenCommentModal(feed, index)}
                     >
                       💬
                     </Typography>
-                    <Typography sx={{ cursor: 'pointer' }}>✈️</Typography>
+                    <Typography
+                      sx={{
+                        cursor: 'pointer',
+                        fontSize: 20,
+                        transition: 'transform 0.15s ease',
+                        '&:hover': {
+                          transform: 'scale(1.15)',
+                        },
+                      }}
+                    >
+                      ✈️
+                    </Typography>
                   </Box>
 
                   {/* 내용/캡션 */}
                   <CardContent
                     sx={{
-                      borderTop: '1px solid #efefef',
+                      borderTop: '1px solid #f3f3f3',
                       px: 2,
                       py: 1.5,
                     }}
                   >
                     <Typography
                       variant="body2"
-                      sx={{ whiteSpace: 'pre-wrap' }}
+                      sx={{
+                        whiteSpace: 'pre-wrap',
+                        fontSize: 14,
+                        color: '#444',
+                      }}
                     >
                       {feed.CONTENT}
                     </Typography>
@@ -451,11 +516,20 @@ function Feed() {
               );
             })
           ) : (
-            '등록된 피드가 없습니다. 피드를 등록해보세요.'
+            <Typography
+              sx={{
+                mt: 8,
+                textAlign: 'center',
+                color: '#999',
+                fontSize: 14,
+              }}
+            >
+              등록된 피드가 없습니다. 오늘의 데이트를 첫 번째로 기록해보세요. 💌
+            </Typography>
           )}
         </Box>
 
-        {/* 오른쪽 사이드바 – 생략 (기존 그대로) */}
+        {/* 오른쪽 사이드바 */}
         {currentUser && (
           <Box
             sx={{
@@ -466,12 +540,23 @@ function Feed() {
               ml: 0,
             }}
           >
-            {/* ...기존 추천 유저 영역 그대로... */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            {/* 로그인 유저 정보 카드 */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                mb: 3,
+                p: 1.5,
+                borderRadius: 3,
+                backgroundColor: 'rgba(255,255,255,0.92)',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.04)',
+                border: '1px solid rgba(255,127,162,0.16)',
+              }}
+            >
               <Avatar
                 src={currentUser.profileImg}
                 onClick={() => navigate('/mypage')}
-                sx={{ width: 40, height: 40, cursor: 'pointer' }}
+                sx={{ width: 44, height: 44, cursor: 'pointer' }}
               >
                 {currentUser.userId.charAt(0).toUpperCase()}
               </Avatar>
@@ -481,16 +566,15 @@ function Feed() {
                   display: 'flex',
                   flexDirection: 'column',
                   ml: 1.5,
-                  lineHeight: 0.5,
                 }}
               >
                 <ButtonBase
                   onClick={() => navigate('/mypage')}
-                  sx={{ alignSelf: 'flex-start', p: 0, mb: -0.5 }}
+                  sx={{ alignSelf: 'flex-start', p: 0, mb: 0.3 }}
                 >
                   <Typography
                     variant="subtitle2"
-                    sx={{ fontWeight: 700, fontSize: 14 }}
+                    sx={{ fontWeight: 700, fontSize: 14, color: '#333' }}
                   >
                     {currentUser.userId}
                   </Typography>
@@ -498,31 +582,39 @@ function Feed() {
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ fontSize: 13 }}
+                  sx={{ fontSize: 13, color: '#777' }}
                 >
                   {currentUser.userName}
                 </Typography>
               </Box>
             </Box>
 
+            {/* 추천 타이틀 */}
             <Box
               sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 mb: 1.5,
+                px: 0.5,
               }}
             >
               <Typography
                 variant="subtitle2"
                 color="text.secondary"
-                sx={{ fontWeight: 600, fontSize: 13 }}
+                sx={{ fontWeight: 600, fontSize: 13, color: '#999' }}
               >
                 회원님을 위한 추천
               </Typography>
               <Button
                 size="small"
-                sx={{ fontSize: 12, fontWeight: 600, minWidth: 'auto' }}
+                sx={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  minWidth: 'auto',
+                  textTransform: 'none',
+                  color: '#ff4f81',
+                }}
               >
                 모두 보기
               </Button>
@@ -535,9 +627,18 @@ function Feed() {
                   display: 'flex',
                   alignItems: 'center',
                   mb: 1.5,
+                  p: 1,
+                  borderRadius: 2.5,
+                  transition: 'background-color 0.15s ease',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255,127,162,0.07)',
+                  },
                 }}
               >
-                <Avatar src={user.profileImg} sx={{ width: 40, height: 40, mr: 2 }}>
+                <Avatar
+                  src={user.profileImg}
+                  sx={{ width: 40, height: 40, mr: 1.5 }}
+                >
                   {user.userId.charAt(0).toUpperCase()}
                 </Avatar>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -549,7 +650,7 @@ function Feed() {
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
-                      mb: -0.5,
+                      mb: 0.2,
                     }}
                   >
                     {user.userId}
@@ -561,6 +662,7 @@ function Feed() {
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
+                      color: '#999',
                     }}
                   >
                     {user.reason || '회원님을 위한 추천'}
@@ -573,8 +675,9 @@ function Feed() {
                     fontWeight: 600,
                     fontSize: 12,
                     ml: 1,
-                    color: 'primary.main',
+                    color: '#ff4f81',
                     minWidth: 'auto',
+                    textTransform: 'none',
                   }}
                 >
                   팔로우
@@ -592,7 +695,7 @@ function Feed() {
         fullScreen
         PaperProps={{
           sx: {
-            backgroundColor: 'rgba(0,0,0,0.5)',
+            backgroundColor: 'rgba(0,0,0,0.55)',
             boxShadow: 'none',
           },
         }}
@@ -608,6 +711,10 @@ function Feed() {
             top: 24,
             zIndex: 1301,
             color: '#fff',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            '&:hover': {
+              backgroundColor: 'rgba(0,0,0,0.7)',
+            },
           }}
         >
           <CloseOutlined />
@@ -621,6 +728,7 @@ function Feed() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            px: 2,
           }}
         >
           <Box
@@ -633,6 +741,7 @@ function Feed() {
               overflow: 'hidden',
               display: 'flex',
               bgcolor: '#fff',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.45)',
             }}
           >
             {/* 왼쪽: 이미지 영역 */}
@@ -640,7 +749,7 @@ function Feed() {
               sx={{
                 flexBasis: '65%',
                 flexShrink: 0,
-                backgroundColor: 'black',
+                backgroundColor: '#000',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -679,6 +788,9 @@ function Feed() {
                           transform: 'translateY(-50%)',
                           color: '#fff',
                           backgroundColor: 'rgba(0,0,0,0.4)',
+                          '&:hover': {
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                          },
                         }}
                       >
                         <ChevronLeft />
@@ -699,6 +811,9 @@ function Feed() {
                           transform: 'translateY(-50%)',
                           color: '#fff',
                           backgroundColor: 'rgba(0,0,0,0.4)',
+                          '&:hover': {
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                          },
                         }}
                       >
                         <ChevronRight />
@@ -718,8 +833,8 @@ function Feed() {
                           <Box
                             key={idx}
                             sx={{
-                              width: 6,
-                              height: 6,
+                              width: 7,
+                              height: 7,
                               borderRadius: '50%',
                               bgcolor:
                                 idx === imageIndex
@@ -741,7 +856,7 @@ function Feed() {
                 flexGrow: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                borderLeft: '1px solid #dbdbdb',
+                borderLeft: '1px solid #f0f0f0',
                 backgroundColor: '#fff',
               }}
             >
@@ -749,7 +864,7 @@ function Feed() {
               <Box
                 sx={{
                   p: 2,
-                  borderBottom: '1px solid #dbdbdb',
+                  borderBottom: '1px solid #f0f0f0',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 1,
@@ -763,7 +878,10 @@ function Feed() {
                 <Typography sx={{ fontWeight: 600 }}>
                   {selectedFeed?.USERID}
                 </Typography>
-                <IconButton onClick={handleMenuClick} sx={{ marginLeft: 'auto' }}>
+                <IconButton
+                  onClick={handleMenuClick}
+                  sx={{ marginLeft: 'auto' }}
+                >
                   <MoreVert />
                 </IconButton>
 
@@ -799,7 +917,9 @@ function Feed() {
                   {comments.map((comment, index) => (
                     <ListItem key={index} sx={{ px: 0 }}>
                       <ListItemAvatar>
-                        <Avatar>{comment.id.charAt(0).toUpperCase()}</Avatar>
+                        <Avatar>
+                          {comment.id.charAt(0).toUpperCase()}
+                        </Avatar>
                       </ListItemAvatar>
                       <ListItemText
                         primary={
@@ -816,7 +936,7 @@ function Feed() {
               {/* 하단: 댓글 입력 */}
               <Box
                 sx={{
-                  borderTop: '1px solid #dbdbdb',
+                  borderTop: '1px solid #f0f0f0',
                   display: 'flex',
                   alignItems: 'center',
                   px: 2,
@@ -825,7 +945,7 @@ function Feed() {
                 }}
               >
                 <IconButton size="small" onClick={handleEmojiButtonClick}>
-                  <InsertEmoticon fontSize="small" />
+                  <InsertEmoticon fontSize="small" sx={{ color: '#ff7fa2' }} />
                 </IconButton>
 
                 <InputBase
@@ -846,7 +966,7 @@ function Feed() {
                     textTransform: 'none',
                     fontSize: 14,
                     fontWeight: 600,
-                    color: '#0095f6',
+                    color: '#ff4f81',
                     opacity: newComment.trim() ? 1 : 0.3,
                   }}
                 >

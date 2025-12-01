@@ -1,4 +1,3 @@
-// CreatePostModal.js
 import React, { useRef, useState, useEffect } from 'react';
 import {
     Dialog,
@@ -26,28 +25,22 @@ import { useCreatePost } from './CreatePostContext';
 function CreatePostModal() {
     const { openCreate, setOpenCreate } = useCreatePost();
 
-    // 파일 + 프리뷰
     const [files, setFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
     const [createImageIndex, setCreateImageIndex] = useState(0);
 
-    // 내용
     const [newContent, setNewContent] = useState('');
     const contentRef = useRef(null);
 
-    // 🔹 현재 로그인 유저 정보
     const [user, setUser] = useState(null);
 
-    // 이모지
     const [emojiAnchorEl, setEmojiAnchorEl] = useState(null);
     const emojiOpen = Boolean(emojiAnchorEl);
 
-    // 닫기 확인 모달
     const [openConfirm, setOpenConfirm] = useState(false);
 
     const navigate = useNavigate();
 
-    // 🔹 모달 열릴 때마다 로그인 유저 정보 가져오기 (MyPage의 fnGetUser 간단 버전)
     useEffect(() => {
         if (!openCreate) return;
 
@@ -55,11 +48,11 @@ function CreatePostModal() {
         if (!token) return;
 
         try {
-            const decode = jwtDecode(token);   // { userId: ... }
+            const decode = jwtDecode(token);
             fetch('http://localhost:3010/user/' + decode.userId)
                 .then((res) => res.json())
                 .then((data) => {
-                    setUser(data.user);        // PROFILE_IMG, USERID 등
+                    setUser(data.user);
                 })
                 .catch((err) => console.error(err));
         } catch (e) {
@@ -67,11 +60,9 @@ function CreatePostModal() {
         }
     }, [openCreate]);
 
-    // 🔹 파일 선택 (예전 MyPage fn에서 그대로 가져온 구조)
     const handleFileChange = (event) => {
         const selectedFiles = event.target.files;
 
-        // 아무것도 안 골랐을 때
         if (!selectedFiles || selectedFiles.length === 0) {
             setFiles([]);
             setPreviewUrls([]);
@@ -82,13 +73,11 @@ function CreatePostModal() {
         const filesArray = Array.from(selectedFiles);
         setFiles(filesArray);
 
-        // 미리보기 URL 배열
         const urls = filesArray.map((file) => URL.createObjectURL(file));
         setPreviewUrls(urls);
         setCreateImageIndex(0);
     };
 
-    // 이모지 버튼
     const handleEmojiButtonClick = (e) => {
         setEmojiAnchorEl(e.currentTarget);
     };
@@ -104,7 +93,6 @@ function CreatePostModal() {
         }, 0);
     };
 
-    // 모달 닫을 때 내부 상태도 초기화
     const handleCloseCreate = () => {
         setOpenCreate(false);
         setNewContent('');
@@ -114,7 +102,6 @@ function CreatePostModal() {
         setEmojiAnchorEl(null);
     };
 
-    // ✅ 예전 MyPage에 있던 fnFeedAdd를 그대로 가져온 버전
     const fnFeedAdd = () => {
         if (files.length === 0) {
             alert('이미지를 선택해주세요.');
@@ -130,7 +117,6 @@ function CreatePostModal() {
 
         const decode = jwtDecode(token);
 
-        // 예전 코드: contentRef.current.value 사용
         const param = {
             content: contentRef.current ? contentRef.current.value : newContent,
             userId: decode.userId,
@@ -148,13 +134,11 @@ function CreatePostModal() {
             .then((data) => {
                 alert(data.msg);
 
-                // 예전처럼 insertId로 파일 업로드 이어서 호출
                 if (data.result && data.result[0] && data.result[0].insertId) {
                     fnUploadFile(data.result[0].insertId);
                 } else {
                     console.log('feed 응답 형식이 예상과 다릅니다.', data);
                     handleCloseCreate();
-                    // 최소한 화면은 새로고침 (마이페이지 다시 그리기)
                     window.location.reload();
                 }
             })
@@ -164,7 +148,6 @@ function CreatePostModal() {
             });
     };
 
-    // ✅ 예전 MyPage에 있던 fnUploadFile을 그대로 가져온 구조
     const fnUploadFile = (feedNo) => {
         const formData = new FormData();
 
@@ -180,9 +163,6 @@ function CreatePostModal() {
             .then((res) => res.json())
             .then((data) => {
                 console.log('업로드 결과 ==>', data);
-
-                // 원래 MyPage에서는 fnFeeds(), fnGetUser()를 불렀는데
-                // 여기서는 그냥 전체 새로고침으로 대체 (마이페이지 다시 그리기)
                 handleCloseCreate();
                 window.location.reload();
             })
@@ -197,16 +177,16 @@ function CreatePostModal() {
             {/* 새 게시물 모달 */}
             <Dialog
                 open={openCreate}
-                onClose={() => setOpenConfirm(true)} // 바로 닫지 않고 확인 모달
+                onClose={() => setOpenConfirm(true)}
                 fullScreen
                 PaperProps={{
                     sx: {
-                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        background:
+                            'radial-gradient(circle at top, rgba(255,227,238,0.95) 0, rgba(0,0,0,0.75) 55%)',
                         boxShadow: 'none',
                     },
                 }}
             >
-                {/* X 닫기 버튼 */}
                 <IconButton
                     edge="end"
                     color="inherit"
@@ -219,14 +199,13 @@ function CreatePostModal() {
                         zIndex: 1301,
                         color: '#fff',
                         '&:hover': {
-                            color: 'rgba(200,200,200,1)',
+                            color: '#ffe3ee',
                         },
                     }}
                 >
                     <CloseOutlined />
                 </IconButton>
 
-                {/* 화면 가운데 카드 */}
                 <Box
                     sx={{
                         width: '100%',
@@ -234,6 +213,7 @@ function CreatePostModal() {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        px: 2,
                     }}
                 >
                     <Box
@@ -241,17 +221,18 @@ function CreatePostModal() {
                             width: '100%',
                             maxWidth: 960,
                             height: '80vh',
-                            bgcolor: '#fff',
+                            bgcolor: '#ffffff',
                             borderRadius: 4,
                             overflow: 'hidden',
                             display: 'flex',
                             flexDirection: 'column',
+                            boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
                         }}
                     >
                         {/* 상단 타이틀 + 공유 버튼 */}
                         <Box
                             sx={{
-                                borderBottom: '1px solid #dbdbdb',
+                                borderBottom: '1px solid #f0f0f0',
                                 height: 48,
                                 display: 'flex',
                                 alignItems: 'center',
@@ -272,6 +253,7 @@ function CreatePostModal() {
                                     textTransform: 'none',
                                     fontSize: 14,
                                     fontWeight: 600,
+                                    color: '#ff4f81',
                                     opacity:
                                         files.length === 0 || !newContent.trim() ? 0.3 : 1,
                                 }}
@@ -280,8 +262,7 @@ function CreatePostModal() {
                             </Button>
                         </Box>
 
-                        {/* 본문 영역 */}
-                        {/* 1) 아직 파일 선택 안 했을 때 → 가운데 안내 화면 */}
+                        {/* 파일 없음 상태 */}
                         {previewUrls.length === 0 && (
                             <Box
                                 sx={{
@@ -292,6 +273,7 @@ function CreatePostModal() {
                                     justifyContent: 'center',
                                     textAlign: 'center',
                                     gap: 3,
+                                    bgcolor: '#fff',
                                 }}
                             >
                                 <Box sx={{ position: 'relative', width: 80, height: 80 }}>
@@ -305,6 +287,7 @@ function CreatePostModal() {
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
+                                            color: '#ff7fa2',
                                         }}
                                     >
                                         <AddPhotoAlternate
@@ -321,6 +304,7 @@ function CreatePostModal() {
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
+                                            color: '#ff4f81',
                                         }}
                                     >
                                         <Slideshow
@@ -342,6 +326,13 @@ function CreatePostModal() {
                                         borderRadius: 3,
                                         textTransform: 'none',
                                         fontWeight: 600,
+                                        background:
+                                            'linear-gradient(135deg, #ff9fb8, #ff7fa2)',
+                                        boxShadow: '0 10px 20px rgba(255,79,129,0.35)',
+                                        '&:hover': {
+                                            background:
+                                                'linear-gradient(135deg, #ff7fa2, #ff4f81)',
+                                        },
                                     }}
                                 >
                                     컴퓨터에서 선택
@@ -356,15 +347,16 @@ function CreatePostModal() {
                             </Box>
                         )}
 
-                        {/* 2) 파일 선택 후 → 왼쪽 사진, 오른쪽 글쓰기 */}
+                        {/* 파일 선택 후 */}
                         {previewUrls.length > 0 && (
                             <Box sx={{ flex: 1, display: 'flex' }}>
-                                {/* 왼쪽: 사진 슬라이드 */}
+                                {/* 왼쪽: 이미지 슬라이드 */}
                                 <Box
                                     sx={{
                                         flex: 2,
                                         position: 'relative',
                                         overflow: 'hidden',
+                                        bgcolor: '#000',
                                     }}
                                 >
                                     <Box
@@ -383,7 +375,6 @@ function CreatePostModal() {
 
                                     {previewUrls.length > 1 && (
                                         <>
-                                            {/* 왼쪽 화살표 */}
                                             <IconButton
                                                 onClick={() =>
                                                     setCreateImageIndex((prev) =>
@@ -397,7 +388,7 @@ function CreatePostModal() {
                                                     top: '50%',
                                                     transform: 'translateY(-50%)',
                                                     color: '#fff',
-                                                    backgroundColor: 'rgba(0,0,0,0.4)',
+                                                    backgroundColor: 'rgba(0,0,0,0.45)',
                                                     '&:hover': {
                                                         backgroundColor: 'rgba(0,0,0,0.7)',
                                                     },
@@ -406,7 +397,6 @@ function CreatePostModal() {
                                                 <ChevronLeft />
                                             </IconButton>
 
-                                            {/* 오른쪽 화살표 */}
                                             <IconButton
                                                 onClick={() =>
                                                     setCreateImageIndex((prev) => {
@@ -414,16 +404,14 @@ function CreatePostModal() {
                                                         return prev < last ? prev + 1 : prev;
                                                     })
                                                 }
-                                                disabled={
-                                                    createImageIndex === previewUrls.length - 1
-                                                }
+                                                disabled={createImageIndex === previewUrls.length - 1}
                                                 sx={{
                                                     position: 'absolute',
                                                     right: 16,
                                                     top: '50%',
                                                     transform: 'translateY(-50%)',
                                                     color: '#fff',
-                                                    backgroundColor: 'rgba(0,0,0,0.4)',
+                                                    backgroundColor: 'rgba(0,0,0,0.45)',
                                                     '&:hover': {
                                                         backgroundColor: 'rgba(0,0,0,0.7)',
                                                     },
@@ -432,7 +420,6 @@ function CreatePostModal() {
                                                 <ChevronRight />
                                             </IconButton>
 
-                                            {/* 아래쪽 점 인디케이터 */}
                                             <Box
                                                 sx={{
                                                     position: 'absolute',
@@ -466,19 +453,19 @@ function CreatePostModal() {
                                 <Box
                                     sx={{
                                         flex: 1,
-                                        borderLeft: '1px solid #dbdbdb',
+                                        borderLeft: '1px solid #f0f0f0',
                                         display: 'flex',
                                         flexDirection: 'column',
+                                        backgroundColor: '#fff',
                                     }}
                                 >
-                                    {/* 🔹 실제 로그인 유저 프로필 영역 */}
                                     <Box
                                         sx={{
                                             p: 2,
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: 1,
-                                            borderBottom: '1px solid #dbdbdb',
+                                            borderBottom: '1px solid #f0f0f0',
                                         }}
                                     >
                                         <Avatar
@@ -491,7 +478,6 @@ function CreatePostModal() {
                                         </Typography>
                                     </Box>
 
-                                    {/* 문구 입력 */}
                                     <Box sx={{ p: 2, flex: 1 }}>
                                         <InputBase
                                             inputRef={contentRef}
@@ -516,7 +502,10 @@ function CreatePostModal() {
                                                 size="small"
                                                 onClick={handleEmojiButtonClick}
                                             >
-                                                <InsertEmoticon fontSize="small" />
+                                                <InsertEmoticon
+                                                    fontSize="small"
+                                                    sx={{ color: '#ff7fa2' }}
+                                                />
                                             </IconButton>
                                             <Typography
                                                 sx={{ fontSize: 12, color: '#8e8e8e' }}
@@ -530,18 +519,17 @@ function CreatePostModal() {
                         )}
                     </Box>
                 </Box>
-            </Dialog >
+            </Dialog>
 
             {/* 나가기 확인 모달 */}
-            < Dialog
+            <Dialog
                 open={openConfirm}
-                onClose={() => setOpenConfirm(false)
-                }
+                onClose={() => setOpenConfirm(false)}
                 PaperProps={{
                     sx: {
                         borderRadius: 3,
-                        paddingTop: 2,
-                        paddingBottom: 1,
+                        pt: 2,
+                        pb: 1,
                         textAlign: 'center',
                         width: 360,
                     },
@@ -580,10 +568,10 @@ function CreatePostModal() {
                 >
                     취소
                 </Button>
-            </Dialog >
+            </Dialog>
 
             {/* 이모지 팝업 */}
-            < Popover
+            <Popover
                 open={emojiOpen}
                 anchorEl={emojiAnchorEl}
                 onClose={handleEmojiClose}
@@ -599,12 +587,8 @@ function CreatePostModal() {
                 disableEnforceFocus
                 disableRestoreFocus
             >
-                <EmojiPicker
-                    onEmojiClick={handleEmojiClick}
-                    width={300}
-                    height={400}
-                />
-            </Popover >
+                <EmojiPicker onEmojiClick={handleEmojiClick} width={300} height={400} />
+            </Popover>
         </>
     );
 }

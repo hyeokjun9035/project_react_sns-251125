@@ -8,27 +8,82 @@ function Login() {
   let pwdRef = useRef();
   let navigate = useNavigate();
   return (
-    <Container maxWidth="xs">
+    <Container
+      maxWidth="xs"
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background:
+          'radial-gradient(circle at top left, #ffe3ee 0, #fff5f8 40%, #ffffff 100%)',
+      }}
+    >
       <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="100vh"
+        sx={{
+          width: '100%',
+          px: 4,
+          py: 5,
+          borderRadius: 4,
+          boxShadow: '0 20px 45px rgba(255,127,162,0.35)',
+          backgroundColor: 'rgba(255,255,255,0.96)',
+          border: '1px solid rgba(255,127,162,0.25)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
       >
-        <Typography variant="h6" component="div" sx={{
-          p: 2,
-          fontFamily: "'Cafe24Oneprettynight', sans-serif",
-          fontWeight: 700,
-          fontSize: "35px",
-          color: "#333",
-          textShadow: "0 1px 2px rgba(0,0,0,0.15)"
-        }}>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{
+            mb: 3,
+            fontFamily: "'Cafe24Oneprettynight', sans-serif",
+            fontWeight: 700,
+            fontSize: '36px',
+            color: '#333',
+            textShadow: '0 2px 6px rgba(255,127,162,0.45)',
+            letterSpacing: '1px',
+          }}
+        >
           <span>𝓣𝓱𝓵</span>
-          <span style={{ color: "#ff7fa2", margin: "0 2px" }}>♥</span>
+          <span style={{ color: '#ff7fa2', margin: '0 4px' }}>♥</span>
           <span>𝓰</span>
         </Typography>
-        <TextField inputRef={idRef} label="ID" variant="outlined" margin="normal" fullWidth />
+
+        <Typography
+          variant="body2"
+          sx={{ mb: 2.5, color: '#777', textAlign: 'center' }}
+        >
+          오늘은 어디서 두근거릴까요?
+        </Typography>
+
+        <TextField
+          inputRef={idRef}
+          label="ID"
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 3,
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              '& fieldset': {
+                borderColor: 'rgba(255,127,162,0.35)',
+              },
+              '&:hover fieldset': {
+                borderColor: '#ff7fa2',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#ff4f81',
+              },
+            },
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: '#ff4f81',
+            },
+          }}
+        />
         <TextField
           inputRef={pwdRef}
           label="비밀번호"
@@ -36,33 +91,84 @@ function Login() {
           margin="normal"
           fullWidth
           type="password"
-        />
-        <Button onClick={() => {
-          let param = {
-            userId: idRef.current.value,
-            pwd: pwdRef.current.value
-          };
-          fetch("http://localhost:3010/user/login", {
-            method: "POST",
-            headers: {
-              "Content-type": "application/json"
+          sx={{
+            mt: 1,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 3,
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              '& fieldset': {
+                borderColor: 'rgba(255,127,162,0.35)',
+              },
+              '&:hover fieldset': {
+                borderColor: '#ff7fa2',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#ff4f81',
+              },
             },
-            body: JSON.stringify(param)
-          })
-            .then(res => res.json())
-            .then(data => {
-              alert(data.msg);
-              console.log(data);
-              if (data.result) {
-                localStorage.setItem("token", data.token);
-                navigate("/feed");
-              }
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: '#ff4f81',
+            },
+          }}
+        />
+        <Button
+          onClick={() => {
+            let param = {
+              userId: idRef.current.value,
+              pwd: pwdRef.current.value,
+            };
+            fetch('http://localhost:3010/user/login', {
+              method: 'POST',
+              headers: {
+                'Content-type': 'application/json',
+              },
+              body: JSON.stringify(param),
             })
-        }} variant="contained" color="primary" fullWidth style={{ marginTop: '20px' }}>
+              .then((res) => res.json())
+              .then((data) => {
+                alert(data.msg);
+                console.log(data);
+                if (data.result) {
+                  localStorage.setItem('token', data.token);
+                  navigate('/feed');
+                }
+              });
+          }}
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{
+            mt: 3,
+            py: 1.1,
+            borderRadius: 999,
+            textTransform: 'none',
+            fontWeight: 600,
+            fontSize: 15,
+            background: 'linear-gradient(135deg, #ff9fb8, #ff7fa2)',
+            boxShadow: '0 12px 25px rgba(255,79,129,0.35)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #ff7fa2, #ff4f81)',
+              boxShadow: '0 16px 30px rgba(255,79,129,0.45)',
+            },
+          }}
+        >
           로그인
         </Button>
-        <Typography variant="body2" style={{ marginTop: '15px' }}>
-          계정이 없으신가요? <Link to="/join">회원가입</Link>
+        <Typography
+          variant="body2"
+          sx={{ mt: 2.5, color: '#888', textAlign: 'center' }}
+        >
+          계정이 없으신가요?{' '}
+          <Link
+            to="/join"
+            style={{
+              color: '#ff4f81',
+              fontWeight: 600,
+              textDecoration: 'none',
+            }}
+          >
+            회원가입
+          </Link>
         </Typography>
       </Box>
     </Container>
