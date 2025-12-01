@@ -289,7 +289,7 @@ function MyPage() {
             return acc;
           }, {});
 
-          const groupedFeeds = Object.values(groupedObj);
+          const groupedFeeds = Object.values(groupedObj).reverse();
           setFeeds(groupedFeeds);
         });
     } else {

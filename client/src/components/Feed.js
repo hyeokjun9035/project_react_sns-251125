@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+// Feed.js
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Container,
   Box,
@@ -11,28 +12,70 @@ import {
   ButtonBase,
   Dialog,
   IconButton,
-  InputBase
+  InputBase,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Popover,
+  Menu,
+  MenuItem,
 } from '@mui/material';
+import EmojiPicker from 'emoji-picker-react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
   ChevronRight,
   CloseOutlined,
+  InsertEmoticon,
+  MoreVert,
 } from '@mui/icons-material';
 
 function Feed() {
   const [loginUserId, setLoginUserId] = useState(null);
   const [feeds, setFeeds] = useState([]);
 
+  // ▶ 상세 모달 관련
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedFeed, setSelectedFeed] = useState(null);
+  const [selectedFeedIndex, setSelectedFeedIndex] = useState(null);
   const [imageIndex, setImageIndex] = useState(0);
 
-  const handleOpenCommentModal = (feed) => {
-    setSelectedFeed(feed);
-    setImageIndex(0);
-    setOpenDetail(true);
+  // ▶ 댓글 관련
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+
+  // 이모지 팝업
+  const [emojiAnchorEl, setEmojiAnchorEl] = useState(null);
+  const emojiOpen = Boolean(emojiAnchorEl);
+  const commentInputRef = useRef(null);
+
+  const handleEmojiButtonClick = (event) => {
+    setEmojiAnchorEl(event.currentTarget);
+  };
+
+  const handleEmojiClose = () => {
+    setEmojiAnchorEl(null);
+  };
+
+  const handleEmojiClick = (emojiData) => {
+    setNewComment((prev) => prev + emojiData.emoji);
+    setTimeout(() => {
+      commentInputRef.current?.focus();
+    }, 0);
+  };
+
+  // 메뉴(삭제 등)
+  const [anchorEl, setAnchorEl] = useState(null);
+  const menuOpen = Boolean(anchorEl);
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   // 오른쪽 상단용 상태
@@ -44,18 +87,42 @@ function Feed() {
 
   const navigate = useNavigate();
 
-  // 피드 + 유저/추천 유저 호출
+  const handleDeleteFeed = () => {
+    if (!selectedFeed) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('로그인 후 이용바랍니다.');
+      navigate('/');
+      return;
+    }
+
+    fetch('http://localhost:3010/feed/' + selectedFeed.feedNo, {
+      method: 'DELETE',
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        alert(data.msg);
+        setAnchorEl(null);
+        handleCloseDetail();
+        fnFeeds();
+      });
+  };
+
+  // ▶ 피드 + 유저/추천 유저 호출
   function fnFeeds() {
     const token = localStorage.getItem('token');
     if (token) {
       const decode = jwtDecode(token);
       setLoginUserId(decode.userId);
 
-      // 로그인 유저 정보 (토큰에 있으면 그대로 쓰고, 아니면 /me 같은 API에서 가져오기)
       setCurrentUser({
         userId: decode.userId,
         userName: decode.userName || '닉네임',
-        profileImg: decode.profileImg || '', // 서버에서 넣어주면 됨
+        profileImg: decode.profileImg || '',
       });
 
       fetch('http://localhost:3010/feed', {
@@ -65,7 +132,6 @@ function Feed() {
       })
         .then((res) => res.json())
         .then((data) => {
-          // ✅ MyPage처럼 FEEDNO 기준으로 그룹핑
           const groupedObj = data.list.reduce((acc, row) => {
             const id = row.FEEDNO;
 
@@ -75,7 +141,7 @@ function Feed() {
                 feedNo: row.FEEDNO,
                 CONTENT: row.CONTENT,
                 USERID: row.USERID,
-
+                PROFILE_IMG: row.PROFILE_IMG, // 조인해서 가져왔다고 가정
                 images: [],
               };
             }
@@ -91,8 +157,7 @@ function Feed() {
 
           const groupedFeeds = Object.values(groupedObj).reverse();
           setFeeds(groupedFeeds);
-          
-          // 각 피드의 이미지 인덱스를 0으로 초기화
+
           const initIndexes = {};
           groupedFeeds.forEach((f) => {
             initIndexes[f.FEEDNO] = 0;
@@ -100,7 +165,6 @@ function Feed() {
           setImageIndexes(initIndexes);
         });
 
-      // 일단 프론트 디자인 확인용 더미 데이터
       setSuggestedUsers([
         {
           userId: 'realkim_mk',
@@ -149,15 +213,46 @@ function Feed() {
     });
   };
 
+  // ▶ 댓글 모달 열기 (홈 피드에서 💬 클릭)
+  const handleOpenCommentModal = (feed, index) => {
+    setSelectedFeed(feed);
+    setSelectedFeedIndex(index);
+    setImageIndex(0);
+    setOpenDetail(true);
+
+    // 임시 더미 댓글 (원하면 나중에 API로 교체)
+    setComments([
+      { id: 'user1', text: '멋진 사진이에요!' },
+      { id: 'user2', text: '이 장소에 가보고 싶네요!' },
+    ]);
+    setNewComment('');
+  };
+
+  // ▶ 댓글 모달 닫기
+  const handleCloseDetail = () => {
+    setOpenDetail(false);
+    setSelectedFeed(null);
+    setSelectedFeedIndex(null);
+    setComments([]);
+    setNewComment('');
+  };
+
+  // ▶ 댓글 추가
+  const handleAddComment = () => {
+    if (!newComment.trim()) return;
+    setComments((prev) => [...prev, { id: loginUserId || 'me', text: newComment }]);
+    setNewComment('');
+  };
+
   return (
     <Container
       maxWidth={false}
       disableGutters
       sx={{
-        pl: '240px',    // ✅ 안쪽 여백으로 변경
+        pl: '240px',
         pr: 8,
         boxSizing: 'border-box',
-        overflowX: 'hidden', // 혹시 모를 오버플로우 방지용
+        overflowX: 'hidden',
       }}
     >
       {/* 메인 레이아웃: 피드 + 오른쪽 사이드바 */}
@@ -167,19 +262,15 @@ function Feed() {
           display: 'flex',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
-          maxWidth: 960,   // 최대 960px
-          width: '100%',   // 화면이 더 작을 땐 줄어들게
-          mx: 'auto',      // Container 안에서 가운데 정렬
+          maxWidth: 960,
+          width: '100%',
+          mx: 'auto',
         }}
       >
-        {/* 중앙 피드 컬럼 (인스타처럼 폭 470px 고정) */}
-        <Box
-          sx={{
-            flex: '0 0 470px',
-          }}
-        >
+        {/* 중앙 피드 컬럼 */}
+        <Box sx={{ flex: '0 0 470px' }}>
           {feeds.length > 0 ? (
-            feeds.map((feed) => {
+            feeds.map((feed, index) => {
               const currentIndex = imageIndexes[feed.FEEDNO] || 0;
               const currentImage = feed.images[currentIndex];
 
@@ -193,20 +284,23 @@ function Feed() {
                     overflow: 'hidden',
                   }}
                 >
-                  {/* 🔥 작성자 영역 (프로필 이미지 + 아이디) */}
-                  <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.2,
-                    px: 2,
-                    py: 1.5
-                  }}>
-                    <Avatar src={feed.PROFILEIMG} />
+                  {/* 작성자 영역 */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.2,
+                      px: 2,
+                      py: 1.5,
+                    }}
+                  >
+                    <Avatar src={feed.PROFILE_IMG || undefined} />
                     <Typography sx={{ fontWeight: 700 }}>
                       {feed.USERID}
                     </Typography>
                   </Box>
-                  {/* ⬇️ 이미지 캐러셀 영역 (모달 X, 카드 안에서 바로 넘김) */}
+
+                  {/* 이미지 캐러셀 */}
                   <Box
                     sx={{
                       position: 'relative',
@@ -223,13 +317,11 @@ function Feed() {
                       sx={{
                         width: '100%',
                         height: '100%',
-                        objectFit: 'cover',   // ⬅️ contain → cover 로 변경!
+                        objectFit: 'cover',
                         display: 'block',
                       }}
                     />
 
-
-                    {/* 여러 장일 때 좌/우 버튼 */}
                     {feed.images.length > 1 && (
                       <>
                         <Box
@@ -249,7 +341,11 @@ function Feed() {
                             opacity: currentIndex === 0 ? 0.3 : 1,
                           }}
                           onClick={() =>
-                            handleChangeImage(feed.FEEDNO, 'prev', feed.images.length)
+                            handleChangeImage(
+                              feed.FEEDNO,
+                              'prev',
+                              feed.images.length
+                            )
                           }
                         >
                           <ChevronLeft sx={{ color: '#fff', fontSize: 24 }} />
@@ -269,11 +365,18 @@ function Feed() {
                             width: 32,
                             height: 32,
                             cursor:
-                              currentIndex === feed.images.length - 1 ? 'default' : 'pointer',
-                            opacity: currentIndex === feed.images.length - 1 ? 0.3 : 1,
+                              currentIndex === feed.images.length - 1
+                                ? 'default'
+                                : 'pointer',
+                            opacity:
+                              currentIndex === feed.images.length - 1 ? 0.3 : 1,
                           }}
                           onClick={() =>
-                            handleChangeImage(feed.FEEDNO, 'next', feed.images.length)
+                            handleChangeImage(
+                              feed.FEEDNO,
+                              'next',
+                              feed.images.length
+                            )
                           }
                         >
                           <ChevronRight sx={{ color: '#fff', fontSize: 24 }} />
@@ -298,7 +401,9 @@ function Feed() {
                                 height: 6,
                                 borderRadius: '50%',
                                 bgcolor:
-                                  idx === currentIndex ? '#fff' : 'rgba(255,255,255,0.5)',
+                                  idx === currentIndex
+                                    ? '#fff'
+                                    : 'rgba(255,255,255,0.5)',
                               }}
                             />
                           ))}
@@ -320,31 +425,25 @@ function Feed() {
                     <Typography sx={{ cursor: 'pointer' }}>❤️</Typography>
                     <Typography
                       sx={{ cursor: 'pointer' }}
-                      onClick={() => handleOpenCommentModal(feed)}   // 댓글 모달 열기
+                      onClick={() => handleOpenCommentModal(feed, index)}
                     >
                       💬
                     </Typography>
                     <Typography sx={{ cursor: 'pointer' }}>✈️</Typography>
                   </Box>
 
-                  {/* 🔻 내용/캡션 영역 (인스타 느낌으로 구분) */}
+                  {/* 내용/캡션 */}
                   <CardContent
                     sx={{
-                      borderTop: '1px solid #efefef',   // 사진이랑 경계선
+                      borderTop: '1px solid #efefef',
                       px: 2,
                       py: 1.5,
                     }}
                   >
-                    {/* 나중에 좋아요/댓글 아이콘 들어갈 자리 */}
-                    {/* <Box sx={{ mb: 1 }}>아이콘 자리</Box> */}
-
-                    {/* 글 영역 */}
                     <Typography
                       variant="body2"
                       sx={{ whiteSpace: 'pre-wrap' }}
                     >
-                      {/* 인스타처럼 아이디 + 내용 형태로 보여주고 싶으면 */}
-                      {/* <strong>{feed.USERID}</strong>&nbsp; */}
                       {feed.CONTENT}
                     </Typography>
                   </CardContent>
@@ -356,7 +455,7 @@ function Feed() {
           )}
         </Box>
 
-        {/* 오른쪽 사이드바 – 인스타 스타일 그대로 사용 */}
+        {/* 오른쪽 사이드바 – 생략 (기존 그대로) */}
         {currentUser && (
           <Box
             sx={{
@@ -364,10 +463,10 @@ function Feed() {
               display: { xs: 'none', md: 'block' },
               position: 'static',
               top: 32,
-              ml: 0,          // 🔽 이제 큰 마이너스 마진도 필요 X
+              ml: 0,
             }}
           >
-            {/* 로그인 유저 정보 */}
+            {/* ...기존 추천 유저 영역 그대로... */}
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
               <Avatar
                 src={currentUser.profileImg}
@@ -406,7 +505,6 @@ function Feed() {
               </Box>
             </Box>
 
-            {/* 회원 추천 헤더 */}
             <Box
               sx={{
                 display: 'flex',
@@ -430,7 +528,6 @@ function Feed() {
               </Button>
             </Box>
 
-            {/* 추천 유저 리스트 */}
             {suggestedUsers.map((user) => (
               <Box
                 key={user.userId}
@@ -487,10 +584,11 @@ function Feed() {
           </Box>
         )}
       </Box>
-      {/* 피드 상세 모달 */}
+
+      {/* ▶ 피드 상세 + 댓글 모달 (MyPage와 동일 구조) */}
       <Dialog
         open={openDetail}
-        onClose={() => setOpenDetail(false)}
+        onClose={handleCloseDetail}
         fullScreen
         PaperProps={{
           sx: {
@@ -499,10 +597,11 @@ function Feed() {
           },
         }}
       >
+        {/* 닫기 버튼 */}
         <IconButton
           edge="end"
           color="inherit"
-          onClick={() => setOpenDetail(false)}
+          onClick={handleCloseDetail}
           sx={{
             position: 'fixed',
             right: 24,
@@ -514,6 +613,7 @@ function Feed() {
           <CloseOutlined />
         </IconButton>
 
+        {/* 가운데 카드 */}
         <Box
           sx={{
             width: '100%',
@@ -535,97 +635,107 @@ function Feed() {
               bgcolor: '#fff',
             }}
           >
-            {/* 왼쪽: 이미지 */}
+            {/* 왼쪽: 이미지 영역 */}
             <Box
               sx={{
                 flexBasis: '65%',
+                flexShrink: 0,
                 backgroundColor: 'black',
                 display: 'flex',
-                justifyContent: 'center',
                 alignItems: 'center',
+                justifyContent: 'center',
                 position: 'relative',
               }}
             >
-              {selectedFeed && (
-                <Box
-                  component="img"
-                  src={selectedFeed.images[imageIndex].IMGPATH}
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',   // 🔥 contain → cover
-                  }}
-                />
-              )}
-
-              {selectedFeed?.images?.length > 1 && (
+              {selectedFeed && selectedFeed.images && (
                 <>
-                  {/* 왼쪽 화살표 */}
-                  <IconButton
-                    onClick={() =>
-                      setImageIndex((prev) => (prev > 0 ? prev - 1 : prev))
-                    }
-                    sx={{
-                      position: 'absolute',
-                      left: 16,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#fff',
-                      backgroundColor: 'rgba(0,0,0,0.4)',
-                    }}
-                  >
-                    <ChevronLeft />
-                  </IconButton>
-
-                  {/* 오른쪽 화살표 */}
-                  <IconButton
-                    onClick={() =>
-                      setImageIndex((prev) =>
-                        prev < selectedFeed.images.length - 1 ? prev + 1 : prev
-                      )
-                    }
-                    sx={{
-                      position: 'absolute',
-                      right: 16,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#fff',
-                      backgroundColor: 'rgba(0,0,0,0.4)',
-                    }}
-                  >
-                    <ChevronRight />
-                  </IconButton>
-
-                  {/* 🔹 아래 dot 인디케이터 추가 (인스타 스타일) */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      bottom: 16,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      display: 'flex',
-                      gap: 0.7,
-                    }}
-                  >
-                    {selectedFeed.images.map((_, idx) => (
+                  {(() => {
+                    const currentImage = selectedFeed.images[imageIndex];
+                    return (
                       <Box
-                        key={idx}
+                        component="img"
+                        src={currentImage.IMGPATH}
+                        alt={currentImage.IMGNAME}
                         sx={{
-                          width: 6,
-                          height: 6,
-                          borderRadius: '50%',
-                          bgcolor:
-                            idx === imageIndex ? '#fff' : 'rgba(255,255,255,0.5)',
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
                         }}
                       />
-                    ))}
-                  </Box>
+                    );
+                  })()}
+
+                  {selectedFeed.images.length > 1 && (
+                    <>
+                      <IconButton
+                        onClick={() =>
+                          setImageIndex((prev) => (prev > 0 ? prev - 1 : prev))
+                        }
+                        disabled={imageIndex === 0}
+                        sx={{
+                          position: 'absolute',
+                          left: 16,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: '#fff',
+                          backgroundColor: 'rgba(0,0,0,0.4)',
+                        }}
+                      >
+                        <ChevronLeft />
+                      </IconButton>
+
+                      <IconButton
+                        onClick={() =>
+                          setImageIndex((prev) => {
+                            const last = selectedFeed.images.length - 1;
+                            return prev < last ? prev + 1 : prev;
+                          })
+                        }
+                        disabled={imageIndex === selectedFeed.images.length - 1}
+                        sx={{
+                          position: 'absolute',
+                          right: 16,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: '#fff',
+                          backgroundColor: 'rgba(0,0,0,0.4)',
+                        }}
+                      >
+                        <ChevronRight />
+                      </IconButton>
+
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          bottom: 16,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          display: 'flex',
+                          gap: 0.7,
+                        }}
+                      >
+                        {selectedFeed.images.map((_, idx) => (
+                          <Box
+                            key={idx}
+                            sx={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: '50%',
+                              bgcolor:
+                                idx === imageIndex
+                                  ? '#fff'
+                                  : 'rgba(255,255,255,0.5)',
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </>
+                  )}
                 </>
               )}
             </Box>
 
-
-            {/* 오른쪽: 댓글 영역 */}
+            {/* 오른쪽: 프로필 / 캡션 / 댓글 */}
             <Box
               sx={{
                 flexGrow: 1,
@@ -635,36 +745,138 @@ function Feed() {
                 backgroundColor: '#fff',
               }}
             >
+              {/* 상단 프로필 영역 */}
               <Box
                 sx={{
                   p: 2,
                   borderBottom: '1px solid #dbdbdb',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
                 }}
               >
-                <Typography>
-                  <strong>{selectedFeed?.USERID}</strong> {selectedFeed?.CONTENT}
+                <Avatar
+                  alt="프로필 이미지"
+                  src={selectedFeed?.PROFILE_IMG || undefined}
+                  sx={{ width: 32, height: 32 }}
+                />
+                <Typography sx={{ fontWeight: 600 }}>
+                  {selectedFeed?.USERID}
                 </Typography>
+                <IconButton onClick={handleMenuClick} sx={{ marginLeft: 'auto' }}>
+                  <MoreVert />
+                </IconButton>
+
+                <Menu
+                  anchorEl={anchorEl}
+                  open={menuOpen}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                  {selectedFeed?.USERID === loginUserId && (
+                    <MenuItem onClick={handleDeleteFeed}>삭제</MenuItem>
+                  )}
+                  <MenuItem onClick={handleMenuClose}>신고</MenuItem>
+                </Menu>
               </Box>
 
-              {/* 댓글 입력 */}
+              {/* 캡션 + 댓글 리스트 */}
+              <Box sx={{ flex: 1, p: 2, overflowY: 'auto' }}>
+                <Box sx={{ display: 'flex', mb: 2 }}>
+                  <Avatar
+                    alt="프로필 이미지"
+                    src={selectedFeed?.PROFILE_IMG || undefined}
+                    sx={{ width: 32, height: 32, mr: 1 }}
+                  />
+                  <Typography variant="body2">
+                    <strong>{selectedFeed?.USERID}</strong>{' '}
+                    {selectedFeed?.CONTENT}
+                  </Typography>
+                </Box>
+
+                <List sx={{ p: 0 }}>
+                  {comments.map((comment, index) => (
+                    <ListItem key={index} sx={{ px: 0 }}>
+                      <ListItemAvatar>
+                        <Avatar>{comment.id.charAt(0).toUpperCase()}</Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
+                          <Typography variant="body2">
+                            <strong>{comment.id}</strong> {comment.text}
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+
+              {/* 하단: 댓글 입력 */}
               <Box
                 sx={{
                   borderTop: '1px solid #dbdbdb',
-                  p: 2,
                   display: 'flex',
-                  gap: 2,
+                  alignItems: 'center',
+                  px: 2,
+                  py: 1,
+                  gap: 1.5,
                 }}
               >
+                <IconButton size="small" onClick={handleEmojiButtonClick}>
+                  <InsertEmoticon fontSize="small" />
+                </IconButton>
+
                 <InputBase
+                  inputRef={commentInputRef}
                   placeholder="댓글 달기..."
-                  sx={{ flex: 1 }}
+                  fullWidth
+                  multiline
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  sx={{ fontSize: 14 }}
                 />
-                <Button>게시</Button>
+
+                <Button
+                  variant="text"
+                  onClick={handleAddComment}
+                  disabled={!newComment.trim()}
+                  sx={{
+                    textTransform: 'none',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: '#0095f6',
+                    opacity: newComment.trim() ? 1 : 0.3,
+                  }}
+                >
+                  게시
+                </Button>
               </Box>
             </Box>
           </Box>
         </Box>
       </Dialog>
+
+      {/* 댓글 이모지 팝업 */}
+      <Popover
+        open={emojiOpen}
+        anchorEl={emojiAnchorEl}
+        onClose={handleEmojiClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        disableAutoFocus
+        disableEnforceFocus
+        disableRestoreFocus
+      >
+        <EmojiPicker onEmojiClick={handleEmojiClick} width={300} height={400} />
+      </Popover>
     </Container>
   );
 }
