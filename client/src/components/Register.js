@@ -76,11 +76,12 @@ function Register() {
       maxWidth="sm"
       sx={{
         minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        pl: '240px',   // 메뉴 오른쪽에서 시작
+        pr: 8,
+        py: 4,
         background:
-          'radial-gradient(circle at top left, #ffe3ee 0, #fff5f8 45%, #ffffff 100%)',
+          'radial-gradient(circle at top, #ffe3ee 0, #fff5f8 45%, #ffe3f0 100%)',
+        boxSizing: 'border-box',
       }}
     >
       <Box
@@ -89,13 +90,13 @@ function Register() {
         alignItems="center"
         justifyContent="flex-start"
         sx={{
-          width: '100%',
-          maxWidth: 560,
-          padding: '28px 32px 32px',
+          width: 480,
+          mx: 'auto',
+          p: 3,
           borderRadius: 4,
-          backgroundColor: 'rgba(255,255,255,0.96)',
-          boxShadow: '0 20px 45px rgba(255,127,162,0.28)',
-          border: '1px solid rgba(255,127,162,0.22)',
+          bgcolor: 'rgba(255,255,255,0.96)',
+          boxShadow: '0 18px 40px rgba(0,0,0,0.08)',
+          mt: 4,
         }}
       >
         <Typography

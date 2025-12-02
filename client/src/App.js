@@ -10,6 +10,7 @@ import Menu from './components/Menu'; // Menu로 변경
 import Chat from './components/Chat';
 import { CreatePostProvider } from './components/CreatePostContext';
 import CreatePostModal from './components/CreatePostModal';
+import './index.css';
 
 function App() {
   const location = useLocation();
@@ -17,10 +18,22 @@ function App() {
 
   return (
     <CreatePostProvider>
-      <Box sx={{ display: 'flex' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          width: '100%',       // ✅ 뷰포트 너비로 고정
+          maxWidth: '100%',    // ✅ 더 넓어지지 않게
+          overflowX: 'hidden',  // ✅ 여기서도 가로 스크롤 막기
+        }}
+      >
         <CssBaseline />
         {!isAuthPage && <Menu />} {/* 로그인과 회원가입 페이지가 아닐 때만 Menu 렌더링 */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Box component="main" sx={{
+          flexGrow: 1,
+          p: 0,                 // 🔥 여기! padding 전부 0
+          minHeight: '100vh',
+          bgcolor: 'transparent',
+        }}>
           {/* ⭐ 어디서든 보이게 공통 모달을 여기서 렌더 */}
           <CreatePostModal />
           <Routes>

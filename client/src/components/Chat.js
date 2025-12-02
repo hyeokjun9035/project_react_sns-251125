@@ -16,6 +16,11 @@ import {
     Paper,
     Stack,
     Button,
+    Dialog,
+    ListItem,
+    TextField,
+    Checkbox,
+    Divider
 } from '@mui/material';
 import {
     Search,
@@ -35,6 +40,11 @@ function Chat() {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState('');
     const [roomSearchText, setRoomSearchText] = useState('');
+    const [friendModalOpen, setFriendModalOpen] = useState(false);
+    const [friends, setFriends] = useState([]);
+    const [selectedFriendIds, setSelectedFriendIds] = useState([]);
+    const [groupName, setGroupName] = useState('');
+    const [memberModalOpen, setMemberModalOpen] = useState(false);
 
     const messagesEndRef = useRef(null);
     const messagesContainerRef = useRef(null);
@@ -56,7 +66,7 @@ function Chat() {
 
         fetch('http://localhost:3010/chat', {
             headers: {
-                Authorization: 'Bearer ' + token,
+                Authorization: "Bearer " + token,
             },
         })
             .then((res) => res.json())
@@ -81,6 +91,134 @@ function Chat() {
                 }));
                 setMessages(msgList);
             });
+    }
+
+    function fnFriendList() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('로그인 후 이용바랍니다.');
+            navigate('/');
+            return;
+        }
+        fetch("http://localhost:3010/chat/friends", {
+            headers: {
+                Authorization: "Bearer " + token,
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log('friends:', data);
+                if (data.result === 'success') {
+                    setFriends(data.list);
+                }
+            });
+    }
+
+    // 친구 한 명 선택 → direct 채팅방 생성 후 이동
+    function handleStartDirectChat(friendId) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('로그인 후 이용바랍니다.');
+            navigate('/');
+            return;
+        }
+
+        fetch("http://localhost:3010/chat/room", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                type: "direct",
+                targetId: friendId,
+            }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log('create room result:', data);
+                if (data.result === 'success') {
+                    const roomId = data.roomId;
+
+                    // 🔸 방 목록 새로고침
+                    fnRoomList();
+
+                    // 🔸 바로 해당 방 선택
+                    setSelectedRoomId(roomId);
+                    fnMessageList(roomId);
+
+                    // 🔸 모달 닫기
+                    setFriendModalOpen(false);
+                } else {
+                    alert(data.msg || '채팅방 생성 실패');
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+                alert('서버 오류');
+            });
+    }
+
+    function handleCreateGroupChat() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('로그인 후 이용바랍니다.');
+            navigate('/');
+            return;
+        }
+
+        if (selectedFriendIds.length < 2) {
+            alert('그룹 채팅은 최소 2명 이상 선택해야 합니다.');
+            return;
+        }
+        if (!groupName.trim()) {
+            alert('그룹 이름을 입력해주세요.');
+            return;
+        }
+
+        fetch("http://localhost:3010/chat/room", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+                type: "group",
+                roomName: groupName,
+                memberIds: selectedFriendIds, // 선택된 친구들 배열
+            }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log('create group room result:', data);
+                if (data.result === 'success') {
+                    const roomId = data.roomId;
+
+                    fnRoomList();          // 방 목록 새로고침
+                    setSelectedRoomId(roomId);
+                    fnMessageList(roomId); // 해당 방 메시지 가져오기
+
+                    setFriendModalOpen(false);
+                } else {
+                    alert(data.msg || '그룹 채팅방 생성 실패');
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+                alert('서버 오류');
+            });
+    }
+
+    function getRoomMembers(room) {
+        const ids = room.USERS ? room.USERS.split(",") : [];
+        const names = room.USER_NAMES ? room.USER_NAMES.split(",") : [];
+        const imgs = room.USER_PROFILE_IMGS ? room.USER_PROFILE_IMGS.split(",") : [];
+
+        return ids.map((id, idx) => ({
+            id,
+            name: names[idx] || id,
+            profile: imgs[idx] || "",
+        }));
     }
 
     useEffect(() => {
@@ -153,23 +291,39 @@ function Chat() {
 
     const filteredRooms = rooms.filter((room) => {
         if (!roomSearchText.trim()) return true;
-        const title = getRoomTitle(room, loginUserId).toLowerCase();
-        return title.includes(roomSearchText.toLowerCase());
+
+        const { title } = getRoomInfo(room, loginUserId || '');
+        return title.toLowerCase().includes(roomSearchText.toLowerCase());
     });
 
-    function getRoomTitle(room, myId) {
+    function getRoomInfo(room, myId) {
+        // 그룹 채팅이면 그냥 방 이름 사용
         if (room.TYPE === 'group') {
-            return room.ROOM_NAME || '그룹 채팅';
+            return {
+                title: room.ROOM_NAME || '그룹 채팅',
+                subTitle: '',           // 필요 없으면 빈 문자열
+                avatar: room.avatarUrl || '',
+            };
         }
 
-        if (!room.USERS) {
-            return '사용자';
-        }
+        // 1:1 채팅일 때
+        const ids = room.USERS ? room.USERS.split(',') : [];
+        const names = room.USER_NAMES ? room.USER_NAMES.split(',') : [];
+        const imgs = room.USER_PROFILE_IMGS ? room.USER_PROFILE_IMGS.split(',') : [];
 
-        const userArr = room.USERS.split(',');
-        const other = userArr.find((u) => u !== myId) || userArr[0] || '사용자';
+        // 나(me)가 아닌 상대방이 몇 번째 인덱스인지 찾기
+        let idx = ids.findIndex(id => id !== myId);
+        if (idx === -1) idx = 0; // 혹시 못 찾으면 첫 번째로
 
-        return other;
+        const userId = ids[idx] || 'user';
+        const userName = names[idx] || userId;
+        const profile = imgs[idx] || '';
+
+        return {
+            title: userName,      // 리스트에 크게 보일 글자
+            subTitle: userId,     // 아래에 작게 보일 글자 (원하면 안 써도 됨)
+            avatar: profile,      // 프로필 이미지 경로
+        };
     }
 
     const handleSendMessage = () => {
@@ -197,6 +351,11 @@ function Chat() {
         }
     };
 
+    const roomInfo = currentRoom ? getRoomInfo(currentRoom, loginUserId) : null;
+    const otherProfileImg =
+        currentRoom && roomInfo && currentRoom.TYPE !== 'group'
+            ? roomInfo.avatar
+            : '';
     return (
         <Container
             maxWidth={false}
@@ -240,17 +399,48 @@ function Chat() {
                             px: 2,
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'space-between',
                             borderBottom: '1px solid #f0f0f0',
                             flexShrink: 0,
                         }}
                     >
-                        <Typography sx={{ fontWeight: 700, fontSize: 18, color: '#333' }}>
-                            메세지
-                        </Typography>
-                        <IconButton size="small">
-                            <MoreVert />
-                        </IconButton>
+                        {currentRoom && roomInfo && (
+                            <>
+                                <Avatar
+                                    sx={{ width: 32, height: 32, mr: 1 }}
+                                    src={roomInfo.avatar || undefined}
+                                >
+                                    {roomInfo.title.charAt(0).toUpperCase()}
+                                </Avatar>
+                                <Box>
+                                    <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
+                                        {roomInfo.title}
+                                    </Typography>
+                                    <Typography
+                                        sx={{ fontSize: 12, color: '#8e8e8e' }}
+                                        noWrap
+                                    >
+                                        {currentRoom.TYPE === 'group'
+                                            ? currentRoom.ROOM_NAME || '그룹 채팅'
+                                            : roomInfo.subTitle || '1:1 채팅'}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    {currentRoom.TYPE === 'group' && (
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{ textTransform: 'none', fontSize: 12, borderRadius: 999 }}
+                                            onClick={() => setMemberModalOpen(true)}
+                                        >
+                                            멤버 보기
+                                        </Button>
+                                    )}
+                                    <IconButton size="small">
+                                        <MoreVert />
+                                    </IconButton>
+                                </Box>
+                            </>
+                        )}
                     </Box>
 
                     {/* 검색 */}
@@ -290,7 +480,7 @@ function Chat() {
                     >
                         <List disablePadding>
                             {filteredRooms.map((room) => {
-                                const title = getRoomTitle(room, loginUserId);
+                                const { title, subTitle, avatar } = getRoomInfo(room, loginUserId);
                                 const isSelected = room.ROOMID === selectedRoomId;
                                 const isUnread = room.unreadCount > 0;
 
@@ -320,7 +510,7 @@ function Chat() {
                                                     horizontal: 'right',
                                                 }}
                                             >
-                                                <Avatar src={room.avatarUrl || undefined}>
+                                                <Avatar src={avatar || undefined}>
                                                     {title.charAt(0).toUpperCase()}
                                                 </Avatar>
                                             </Badge>
@@ -400,33 +590,24 @@ function Chat() {
                             flexShrink: 0,
                         }}
                     >
-                        {currentRoom && (
+                        {currentRoom && roomInfo && (
                             <>
                                 <Avatar
                                     sx={{ width: 32, height: 32, mr: 1 }}
-                                    src={currentRoom.avatarUrl || undefined}
+                                    src={roomInfo.avatar || undefined}
                                 >
-                                    {getRoomTitle(currentRoom, loginUserId)
-                                        .charAt(0)
-                                        .toUpperCase()}
+                                    {roomInfo.title.charAt(0).toUpperCase()}
                                 </Avatar>
                                 <Box>
                                     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
-                                        {getRoomTitle(currentRoom, loginUserId)}
+                                        {roomInfo.title}
                                     </Typography>
-                                    <Typography
-                                        sx={{ fontSize: 12, color: '#8e8e8e' }}
-                                        noWrap
-                                    >
+                                    <Typography sx={{ fontSize: 12, color: '#8e8e8e' }} noWrap>
                                         {currentRoom.TYPE === 'group'
-                                            ? currentRoom.ROOM_NAME || '그룹 채팅'
-                                            : '1:1 채팅'}
+                                            ? `${currentRoom.ROOM_NAME || '그룹 채팅'} · 멤버 ${getRoomMembers(currentRoom).length
+                                            }명`
+                                            : roomInfo.subTitle || '1:1 채팅'}
                                     </Typography>
-                                </Box>
-                                <Box sx={{ ml: 'auto' }}>
-                                    <IconButton size="small">
-                                        <MoreVert />
-                                    </IconButton>
                                 </Box>
                             </>
                         )}
@@ -481,6 +662,12 @@ function Chat() {
                                         background:
                                             'linear-gradient(135deg, #ff7fa2, #ff4f81)',
                                     },
+                                }}
+                                onClick={() => {
+                                    fnFriendList();          // 🔹 친구 목록 불러오고
+                                    setSelectedFriendIds([]);   // ✅ 초기화
+                                    setGroupName('');           // ✅ 초기화
+                                    setFriendModalOpen(true); // 🔹 모달 열기
                                 }}
                             >
                                 메세지 보내기
@@ -544,16 +731,16 @@ function Chat() {
                                                     {!isMine && (
                                                         <Box sx={{ mr: 1.2 }}>
                                                             {showAvatar ? (
-                                                                <Avatar sx={{ width: 30, height: 30 }}>
-                                                                    {msg.senderId
-                                                                        .charAt(0)
-                                                                        .toUpperCase()}
-                                                                </Avatar>
+                                                                <Avatar
+                                                                    sx={{ width: 30, height: 30 }}
+                                                                    src={otherProfileImg || undefined}   // Feed 방식이랑 동일
+                                                                />
                                                             ) : (
                                                                 <Box sx={{ width: 30 }} />
                                                             )}
                                                         </Box>
                                                     )}
+
 
                                                     <Box
                                                         sx={{
@@ -677,6 +864,165 @@ function Chat() {
                     )}
                 </Box>
             </Box>
+            {/* ================== 친구 선택 모달 (주소록) ================== */}
+            <Dialog
+                open={friendModalOpen}
+                onClose={() => setFriendModalOpen(false)}
+                fullWidth
+                maxWidth="xs"
+            >
+                <Box sx={{ p: 2 }}>
+                    <Typography sx={{ fontSize: 16, fontWeight: 600, mb: 1 }}>
+                        메세지 보낼 친구 선택
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, color: '#888', mb: 2 }}>
+                        팔로우한 친구만 표시됩니다.
+                    </Typography>
+
+                    {friends.length === 0 && (
+                        <Typography sx={{ fontSize: 14, color: '#aaa' }}>
+                            팔로우한 친구가 없습니다.
+                        </Typography>
+                    )}
+
+                    <List sx={{ maxHeight: 280, overflowY: 'auto', mb: 1 }}>
+                        {friends.map((f) => {
+                            const checked = selectedFriendIds.includes(f.USERID);
+
+                            return (
+                                <ListItem
+                                    key={f.USERID}
+                                    sx={{
+                                        px: 0,
+                                        cursor: 'pointer',
+                                        '&:hover': { backgroundColor: 'rgba(0,0,0,0.03)' },
+                                    }}
+                                    onClick={() => {
+                                        // ✅ 체크 토글
+                                        setSelectedFriendIds((prev) =>
+                                            prev.includes(f.USERID)
+                                                ? prev.filter((id) => id !== f.USERID)
+                                                : [...prev, f.USERID]
+                                        );
+                                    }}
+                                >
+                                    <Checkbox
+                                        edge="start"
+                                        checked={checked}
+                                        tabIndex={-1}
+                                        disableRipple
+                                    />
+                                    <ListItemAvatar>
+                                        <Avatar
+                                            src={f.PROFILE_IMG || undefined}
+                                            sx={{ width: 40, height: 40 }}
+                                        >
+                                            {f.USERID.charAt(0).toUpperCase()}
+                                        </Avatar>
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        primary={
+                                            <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
+                                                {f.USERID}
+                                            </Typography>
+                                        }
+                                        secondary={
+                                            <Typography sx={{ fontSize: 12, color: '#777' }}>
+                                                {f.USERNAME}
+                                            </Typography>
+                                        }
+                                    />
+                                </ListItem>
+                            );
+                        })}
+                    </List>
+
+                    <Divider sx={{ my: 1.5 }} />
+
+                    {/* 1:1 채팅 안내 & 버튼 */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Typography sx={{ fontSize: 13, flex: 1 }}>
+                            한 명만 선택하면 1:1 채팅을 시작할 수 있습니다.
+                        </Typography>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            disabled={selectedFriendIds.length !== 1}
+                            onClick={() => handleStartDirectChat(selectedFriendIds[0])}
+                        >
+                            1:1 시작
+                        </Button>
+                    </Box>
+
+                    {/* 그룹 채팅 이름 + 버튼 */}
+                    <Box sx={{ mt: 1 }}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            label="그룹 채팅 이름"
+                            value={groupName}
+                            onChange={(e) => setGroupName(e.target.value)}
+                        />
+                        <Button
+                            fullWidth
+                            sx={{ mt: 1.5 }}
+                            variant="contained"
+                            disabled={selectedFriendIds.length < 2 || !groupName.trim()}
+                            onClick={handleCreateGroupChat}
+                        >
+                            그룹 채팅 만들기
+                        </Button>
+                        <Typography sx={{ fontSize: 12, color: '#888', mt: 0.5 }}>
+                            그룹 채팅은 최소 2명 이상 선택해야 합니다.
+                        </Typography>
+                    </Box>
+                </Box>
+            </Dialog>
+            <Dialog
+                open={memberModalOpen}
+                onClose={() => setMemberModalOpen(false)}
+                fullWidth
+                maxWidth="xs"
+            >
+                <Box sx={{ p: 2 }}>
+                    <Typography sx={{ fontSize: 16, fontWeight: 600, mb: 1 }}>
+                        채팅방 멤버
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, color: '#888', mb: 2 }}>
+                        이 그룹 채팅에 참여 중인 친구들입니다.
+                    </Typography>
+
+                    {currentRoom && (
+                        <List sx={{ maxHeight: 320, overflowY: 'auto' }}>
+                            {getRoomMembers(currentRoom).map((m) => (
+                                <ListItem key={m.id} sx={{ px: 0 }}>
+                                    <ListItemAvatar>
+                                        <Avatar
+                                            src={m.profile || undefined}
+                                            sx={{ width: 40, height: 40 }}
+                                        >
+                                            {m.name.charAt(0).toUpperCase()}
+                                        </Avatar>
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        primary={
+                                            <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
+                                                {m.name}
+                                            </Typography>
+                                        }
+                                        secondary={
+                                            <Typography sx={{ fontSize: 12, color: '#777' }}>
+                                                {m.id}
+                                            </Typography>
+                                        }
+                                    />
+                                </ListItem>
+                            ))}
+                        </List>
+                    )}
+                </Box>
+            </Dialog>
+
         </Container>
     );
 }

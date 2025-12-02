@@ -379,445 +379,466 @@ function MyPage() {
 
   return (
     <Container
-      maxWidth="md"
+      maxWidth={false}
+      disableGutters
       sx={{
         minHeight: '100vh',
         py: 4,
         background:
-          'radial-gradient(circle at top right, #ffe3ee 0, #fff5f8 50%, #ffffff 100%)',
+          'radial-gradient(circle at top, #ffe3ee 0, #fff5f8 45%, #ffe3f0 100%)',
       }}
     >
-      {/* 프로필 영역 */}
-      <Box
-        display="flex"
-        flexDirection="row"
-        alignItems="center"
-        justifyContent="flex-start"
-        sx={{
-          mt: 5,
-          px: 3,
-          py: 3,
-          borderRadius: 4,
-          backgroundColor: 'rgba(255,255,255,0.96)',
-          boxShadow: '0 18px 40px rgba(0,0,0,0.06)',
-          border: '1px solid rgba(255,127,162,0.18)',
-        }}
-      >
-        {/* 프로필 사진 + 업로드 버튼 */}
+      {/* 여기에 중앙 컬럼 Box 추가 */}
+      <Box sx={{ maxWidth: 935, mx: 'auto', px: 3 }}>
+        {/* ---- 프로필 영역 ---- */}
         <Box
+          display="flex"
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="flex-start"
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 3,
-            mr: 5,
+            mt: 5,
+            px: 3,
+            py: 3,
+            borderRadius: 4,
+            background:
+              'linear-gradient(135deg, #ffffff 0%, #ffeaf3 60%, #ffffff 100%)',
+            boxShadow: '0 18px 40px rgba(0,0,0,0.06)',
+            border: '1px solid rgba(255,127,162,0.18)',
           }}
         >
-          <input
-            accept="image/*"
-            style={{ display: 'none' }}
-            id="profile-upload"
-            type="file"
-            onChange={handleProfileFileChange}
-          />
+          {/* 프로필 사진 + 업로드 버튼 */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 3,
+              mr: 5,
+            }}
+          >
+            <input
+              accept="image/*"
+              style={{ display: 'none' }}
+              id="profile-upload"
+              type="file"
+              onChange={handleProfileFileChange}
+            />
 
-          <label htmlFor="profile-upload" style={{ cursor: 'pointer' }}>
-            <Box
-              sx={{
-                position: 'relative',
-                width: 120,
-                height: 120,
-              }}
-            >
+            <label htmlFor="profile-upload" style={{ cursor: 'pointer' }}>
               <Box
                 sx={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: '50%',
-                  overflow: 'hidden',
-                  bgcolor: '#ffeaf1',
-                  border: '3px solid rgba(255,127,162,0.65)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 12px 25px rgba(255,127,162,0.35)',
+                  position: 'relative',
+                  width: 120,
+                  height: 120,
                 }}
               >
-                {profilePreview || user?.PROFILE_IMG ? (
-                  <Box
-                    component="img"
-                    src={profilePreview || user.PROFILE_IMG}
-                    alt="프로필 이미지"
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <AccountCircle sx={{ fontSize: 180, color: '#f0b6c8' }} />
-                )}
-              </Box>
-
-              {!profilePreview && !user?.PROFILE_IMG && (
                 <Box
                   sx={{
-                    position: 'absolute',
-                    bottom: 4,
-                    right: 4,
-                    width: 40,
-                    height: 40,
+                    width: '100%',
+                    height: '100%',
                     borderRadius: '50%',
-                    bgcolor: '#fff',
+                    overflow: 'hidden',
+                    bgcolor: '#ffeaf1',
+                    border: '3px solid rgba(255,127,162,0.65)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 8px 18px rgba(0,0,0,0.15)',
+                    boxShadow: '0 12px 25px rgba(255,127,162,0.35)',
                   }}
                 >
-                  <PhotoCamera sx={{ fontSize: 20, color: '#555' }} />
+                  {profilePreview || user?.PROFILE_IMG ? (
+                    <Box
+                      component="img"
+                      src={profilePreview || user.PROFILE_IMG}
+                      alt="프로필 이미지"
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <AccountCircle sx={{ fontSize: 180, color: '#f0b6c8' }} />
+                  )}
                 </Box>
-              )}
-            </Box>
-          </label>
-        </Box>
 
-        {/* 프로필 텍스트 영역 */}
-        <Box>
-          <Box display="flex" alignItems="center" gap={2}>
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: 500, fontSize: 22, color: '#333' }}
-            >
-              {user?.USERID}
-            </Typography>
-            <Button
-              variant="outlined"
-              sx={{
-                textTransform: 'none',
-                borderRadius: '999px',
-                height: '32px',
-                fontSize: '14px',
-                px: 2.5,
-                borderColor: 'rgba(0,0,0,0.2)',
-                '&:hover': {
-                  borderColor: '#ff7fa2',
-                  backgroundColor: '#fff5fa',
-                },
-              }}
-            >
-              프로필 편집
-            </Button>
-          </Box>
-          <Box sx={{ mt: 1 }}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 500, fontSize: 18, color: '#444' }}
-            >
-              {user?.USERNAME}
-            </Typography>
-          </Box>
-
-          {/* 팔로워/팔로잉/게시물 */}
-          <Box
-            display="flex"
-            gap={4}
-            sx={{ mt: 2, fontSize: '14px', color: '#444' }}
-          >
-            <Typography>
-              <strong>{user?.cnt}</strong> 게시물
-            </Typography>
-            <Typography sx={{ display: 'flex', alignItems: 'center' }}>
-              <strong>{user?.follower}</strong>
-              <Box
-                onClick={() => {
-                  setFollowTab('followers');
-                  handleOpenFollow();
-                }}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  ml: 0.5,
-                  mb: 0.2,
-                  cursor: 'pointer',
-                  color: '#555',
-                  '&:hover': { textDecoration: 'underline' },
-                }}
-              >
-                팔로워 {followers.length}
-              </Box>
-            </Typography>
-            <Typography sx={{ display: 'flex', alignItems: 'center' }}>
-              <strong>{user?.following}</strong>
-              <Box
-                onClick={() => {
-                  setFollowTab('followings');
-                  handleOpenFollow();
-                }}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  ml: 0.5,
-                  mb: 0.2,
-                  cursor: 'pointer',
-                  color: '#555',
-                  '&:hover': { textDecoration: 'underline' },
-                }}
-              >
-                팔로우 {followings.length}
-              </Box>
-            </Typography>
-          </Box>
-
-          {/* 소개글 */}
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="body1" sx={{ fontWeight: 500, color: '#555' }}>
-              {user?.intro}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* 탭 바 */}
-      <Box
-        sx={{
-          mt: 4,
-          borderBottom: '1px solid #e6e6e6',
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
-        <Box sx={{ display: 'flex', gap: 8 }}>
-          <Box
-            onClick={() => setActiveTab('posts')}
-            sx={{
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              py: 1.5,
-            }}
-          >
-            <GridOn
-              sx={{
-                fontSize: 22,
-                color: activeTab === 'posts' ? '#262626' : '#b1b1b1',
-              }}
-            />
-            <Box
-              sx={{
-                mt: 1,
-                width: 28,
-                height: 2,
-                backgroundColor:
-                  activeTab === 'posts' ? '#ff4f81' : 'transparent',
-              }}
-            />
-          </Box>
-
-          <Box
-            onClick={() => setActiveTab('saved')}
-            sx={{
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              py: 1.5,
-            }}
-          >
-            <BookmarkBorder
-              sx={{
-                fontSize: 22,
-                color: activeTab === 'saved' ? '#262626' : '#b1b1b1',
-              }}
-            />
-            <Box
-              sx={{
-                mt: 1,
-                width: 28,
-                height: 2,
-                backgroundColor:
-                  activeTab === 'saved' ? '#ff4f81' : 'transparent',
-              }}
-            />
-          </Box>
-
-          <Box
-            onClick={() => setActiveTab('tagged')}
-            sx={{
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              py: 1.5,
-            }}
-          >
-            <PersonPin
-              sx={{
-                fontSize: 22,
-                color: activeTab === 'tagged' ? '#262626' : '#b1b1b1',
-              }}
-            />
-            <Box
-              sx={{
-                mt: 1,
-                width: 28,
-                height: 2,
-                backgroundColor:
-                  activeTab === 'tagged' ? '#ff4f81' : 'transparent',
-              }}
-            />
-          </Box>
-        </Box>
-      </Box>
-
-      {/* 피드 리스트 */}
-      {activeTab === 'posts' && (
-        <Box mt={4}>
-          <Grid container spacing={3}>
-            {feeds.length > 0 ? (
-              <>
-                {feeds.map((feed, index) => {
-                  const firstImage = feed.images[0];
-
-                  return (
-                    <Grid item xs={12} sm={6} md={4} key={feed.FEEDNO}>
-                      <Card
-                        sx={{
-                          boxShadow: '0 10px 24px rgba(0,0,0,0.08)',
-                          borderRadius: 3,
-                          overflow: 'hidden',
-                          border: '1px solid rgba(255,127,162,0.18)',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <CardMedia
-                          component="img"
-                          height="350"
-                          image={firstImage.IMGPATH}
-                          alt={firstImage.IMGNAME}
-                          onClick={() => handleClickOpen(feed, index)}
-                          sx={{
-                            maxHeight: '600px',
-                            objectFit: 'cover',
-                            transition: 'transform 0.25s ease, opacity 0.25s ease',
-                            '&:hover': {
-                              opacity: 0.9,
-                              transform: 'scale(1.02)',
-                            },
-                          }}
-                        />
-                      </Card>
-                    </Grid>
-                  );
-                })}
-
-                {/* 만들기 카드 */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Card
-                    onClick={() => setOpenCreate(true)}
+                {!profilePreview && !user?.PROFILE_IMG && (
+                  <Box
                     sx={{
-                      boxShadow: '0 8px 18px rgba(0,0,0,0.08)',
-                      borderRadius: 3,
-                      height: 350,
+                      position: 'absolute',
+                      bottom: 4,
+                      right: 4,
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      bgcolor: '#fff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      cursor: 'pointer',
-                      border: '2px dashed rgba(255,127,162,0.6)',
-                      background:
-                        'repeating-linear-gradient(135deg, #fff9fc 0, #fff9fc 6px, #ffffff 6px, #ffffff 12px)',
-                      '&:hover': {
-                        backgroundColor: '#fff0f7',
-                      },
+                      boxShadow: '0 8px 18px rgba(0,0,0,0.15)',
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: 1,
-                      }}
-                    >
-                      <AddRounded sx={{ fontSize: 40, color: '#ff4f81' }} />
-                      <Typography
-                        variant="body2"
-                        sx={{ color: '#ff4f81', fontWeight: 600 }}
-                      >
-                        새 기록 추가
-                      </Typography>
-                    </Box>
-                  </Card>
-                </Grid>
-              </>
-            ) : (
-              <Box
+                    <PhotoCamera sx={{ fontSize: 20, color: '#555' }} />
+                  </Box>
+                )}
+              </Box>
+            </label>
+          </Box>
+
+          {/* 프로필 텍스트 영역 */}
+          <Box>
+            <Box display="flex" alignItems="center" gap={2}>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 500, fontSize: 22, color: '#333' }}
+              >
+                {user?.USERID}
+              </Typography>
+              <Button
+                variant="outlined"
                 sx={{
-                  width: '100%',
-                  mt: 8,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
+                  textTransform: 'none',
+                  borderRadius: '999px',
+                  height: '32px',
+                  fontSize: '14px',
+                  px: 2.5,
+                  borderColor: 'rgba(0,0,0,0.2)',
+                  '&:hover': {
+                    borderColor: '#ff7fa2',
+                    backgroundColor: '#fff5fa',
+                  },
                 }}
               >
+                프로필 편집
+              </Button>
+            </Box>
+            <Box sx={{ mt: 1 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 500, fontSize: 18, color: '#444' }}
+              >
+                {user?.USERNAME}
+              </Typography>
+            </Box>
+
+            {/* 팔로워/팔로잉/게시물 */}
+            <Box
+              display="flex"
+              gap={4}
+              sx={{ mt: 2, fontSize: '14px', color: '#444' }}
+            >
+              <Typography>
+                <strong>{user?.cnt}</strong> 게시물
+              </Typography>
+              <Typography sx={{ display: 'flex', alignItems: 'center' }}>
+                <strong>{user?.follower}</strong>
                 <Box
-                  onClick={() => setOpenCreate(true)}
+                  onClick={() => {
+                    setFollowTab('followers');
+                    handleOpenFollow();
+                  }}
                   sx={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: '50%',
-                    border: '2px solid #ff4f81',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    mb: 2,
+                    ml: 0.5,
+                    mb: 0.2,
                     cursor: 'pointer',
-                    color: '#ff4f81',
+                    color: '#555',
+                    '&:hover': { textDecoration: 'underline' },
                   }}
                 >
-                  <PhotoCameraOutlined sx={{ fontSize: 40 }} />
+                  팔로워 {followers.length}
                 </Box>
-
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: 600, mb: 1, color: '#333' }}
-                >
-                  사진 공유
-                </Typography>
-
-                <Typography
-                  variant="body2"
-                  sx={{ color: '#8e8e8e', mb: 3 }}
-                >
-                  사진을 공유하면 회원님의 프로필에 표시됩니다.
-                </Typography>
-
-                <Button
-                  variant="text"
-                  onClick={() => setOpenCreate(true)}
+              </Typography>
+              <Typography sx={{ display: 'flex', alignItems: 'center' }}>
+                <strong>{user?.following}</strong>
+                <Box
+                  onClick={() => {
+                    setFollowTab('followings');
+                    handleOpenFollow();
+                  }}
                   sx={{
-                    textTransform: 'none',
-                    color: '#ff4f81',
-                    fontWeight: 600,
-                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    ml: 0.5,
+                    mb: 0.2,
+                    cursor: 'pointer',
+                    color: '#555',
+                    '&:hover': { textDecoration: 'underline' },
                   }}
                 >
-                  첫 사진 공유하기
-                </Button>
-              </Box>
-            )}
-          </Grid>
-        </Box>
-      )}
+                  팔로우 {followings.length}
+                </Box>
+              </Typography>
+            </Box>
 
-      {activeTab === 'saved' && (
-        <Box sx={{ mt: 6, textAlign: 'center', color: '#8e8e8e' }}>
-          저장된 게시물이 없습니다.
+            {/* 소개글 */}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body1" sx={{ fontWeight: 500, color: '#555' }}>
+                {user?.intro}
+              </Typography>
+            </Box>
+          </Box>
         </Box>
-      )}
-      {activeTab === 'tagged' && (
-        <Box sx={{ mt: 6, textAlign: 'center', color: '#8e8e8e' }}>
-          태그된 사진이 없습니다.
+
+        {/* 탭 바 */}
+        <Box
+          sx={{
+            mt: 4,
+            borderBottom: '1px solid #e6e6e6',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: 8 }}>
+            <Box
+              onClick={() => setActiveTab('posts')}
+              sx={{
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                py: 1.5,
+              }}
+            >
+              <GridOn
+                sx={{
+                  fontSize: 22,
+                  color: activeTab === 'posts' ? '#262626' : '#b1b1b1',
+                }}
+              />
+              <Box
+                sx={{
+                  mt: 1,
+                  width: 28,
+                  height: 2,
+                  backgroundColor:
+                    activeTab === 'posts' ? '#ff4f81' : 'transparent',
+                }}
+              />
+            </Box>
+
+            <Box
+              onClick={() => setActiveTab('saved')}
+              sx={{
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                py: 1.5,
+              }}
+            >
+              <BookmarkBorder
+                sx={{
+                  fontSize: 22,
+                  color: activeTab === 'saved' ? '#262626' : '#b1b1b1',
+                }}
+              />
+              <Box
+                sx={{
+                  mt: 1,
+                  width: 28,
+                  height: 2,
+                  backgroundColor:
+                    activeTab === 'saved' ? '#ff4f81' : 'transparent',
+                }}
+              />
+            </Box>
+
+            <Box
+              onClick={() => setActiveTab('tagged')}
+              sx={{
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                py: 1.5,
+              }}
+            >
+              <PersonPin
+                sx={{
+                  fontSize: 22,
+                  color: activeTab === 'tagged' ? '#262626' : '#b1b1b1',
+                }}
+              />
+              <Box
+                sx={{
+                  mt: 1,
+                  width: 28,
+                  height: 2,
+                  backgroundColor:
+                    activeTab === 'tagged' ? '#ff4f81' : 'transparent',
+                }}
+              />
+            </Box>
+          </Box>
         </Box>
-      )}
+
+        {/* 피드 리스트 */}
+        {activeTab === 'posts' && (
+          <Box mt={4}>
+            <Grid container spacing={2}>
+              {feeds.length > 0 ? (
+                <>
+                  {feeds.map((feed, index) => {
+                    const firstImage = feed.images[0];
+
+                    return (
+                      <Grid item xs={12} sm={6} md={4} key={feed.FEEDNO}>
+                        <Card
+                          sx={{
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                            borderRadius: 1.5,
+                            overflow: 'hidden',
+                            border: '1px solid rgba(255,255,255,0.5)',
+                          }}
+                        >
+                          {/* 정사각형 비율을 위한 래퍼 박스 */}
+                          <Box
+                            sx={{
+                              position: 'relative',
+                              width: '100%',
+                              paddingTop: '100%', // 정사각형
+                            }}
+                          >
+                            <CardMedia
+                              component="img"
+                              image={firstImage.IMGPATH}
+                              alt={firstImage.IMGNAME}
+                              onClick={() => handleClickOpen(feed, index)}
+                              sx={{
+                                position: 'absolute',
+                                inset: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                cursor: 'pointer',
+                                '&:hover': { opacity: 0.9 },
+                              }}
+                            />
+                          </Box>
+                        </Card>
+                      </Grid>
+                    );
+                  })}
+
+                  {/* 만들기 카드 */}
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Card
+                      onClick={() => setOpenCreate(true)}
+                      sx={{
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                        borderRadius: 1.5,
+                        overflow: 'hidden',
+                        border: '2px dashed rgba(255,127,162,0.6)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: 'relative',
+                          width: '100%',
+                          paddingTop: '100%', // 정사각형
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 1,
+                            background:
+                              'repeating-linear-gradient(135deg,#fff9fc 0,#fff9fc 6px,#ffffff 6px,#ffffff 12px)',
+                            '&:hover': {
+                              backgroundColor: '#fff0f7',
+                            },
+                          }}
+                        >
+                          <AddRounded sx={{ fontSize: 40, color: '#ff4f81' }} />
+                          <Typography
+                            variant="body2"
+                            sx={{ color: '#ff4f81', fontWeight: 600 }}
+                          >
+                            새 기록 추가
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Card>
+                  </Grid>
+                </>
+              ) : (
+                <Box
+                  sx={{
+                    width: '100%',
+                    mt: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Box
+                    onClick={() => setOpenCreate(true)}
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      border: '2px solid #ff4f81',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mb: 2,
+                      cursor: 'pointer',
+                      color: '#ff4f81',
+                    }}
+                  >
+                    <PhotoCameraOutlined sx={{ fontSize: 40 }} />
+                  </Box>
+
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: 600, mb: 1, color: '#333' }}
+                  >
+                    사진 공유
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    sx={{ color: '#8e8e8e', mb: 3 }}
+                  >
+                    사진을 공유하면 회원님의 프로필에 표시됩니다.
+                  </Typography>
+
+                  <Button
+                    variant="text"
+                    onClick={() => setOpenCreate(true)}
+                    sx={{
+                      textTransform: 'none',
+                      color: '#ff4f81',
+                      fontWeight: 600,
+                      fontSize: '14px',
+                    }}
+                  >
+                    첫 사진 공유하기
+                  </Button>
+                </Box>
+              )}
+            </Grid>
+          </Box>
+        )}
+
+        {activeTab === 'saved' && (
+          <Box sx={{ mt: 6, textAlign: 'center', color: '#8e8e8e' }}>
+            저장된 게시물이 없습니다.
+          </Box>
+        )}
+        {activeTab === 'tagged' && (
+          <Box sx={{ mt: 6, textAlign: 'center', color: '#8e8e8e' }}>
+            태그된 사진이 없습니다.
+          </Box>
+        )}
+      </Box>
+
 
       {/* 팔로워 / 팔로잉 모달 */}
       <Dialog

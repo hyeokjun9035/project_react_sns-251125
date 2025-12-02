@@ -6,6 +6,9 @@ import {
   ListItemText,
   Toolbar,
   ListItemIcon,
+  Menu as MuiMenu,
+  MenuItem,
+  Divider,
 } from '@mui/material';
 import {
   Home,
@@ -20,12 +23,43 @@ import {
   NotificationsActive,
   AddRounded,
 } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCreatePost } from './CreatePostContext';
 
 function Menu() {
   const [selectedMenu, setSelectedMenu] = useState('');
   const { setOpenCreate } = useCreatePost();
+  const [moreAnchorEl, setMoreAnchorEl] = useState(null);
+  const openMore = Boolean(moreAnchorEl);
+
+  const handleOpenMore = (e) => setMoreAnchorEl(e.currentTarget);
+  const handleCloseMore = () => setMoreAnchorEl(null);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    handleCloseMore();
+    console.log("로그아웃");
+    // 여기에 실제 로그아웃 로직 넣으면 됨
+  };
+
+  // ⬇⬇ 홈/로고 클릭 공통 함수
+  const handleGoHome = (e) => {
+    setSelectedMenu('feed');
+
+    if (location.pathname === '/feed') {
+      // 이미 /feed에 있으면: Link 기본 이동 막기
+      e.preventDefault();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.dispatchEvent(new Event('refreshFeed'));
+    }
+    // else 쪽에서 굳이 navigate 호출 안 해도 됨
+    // Link 가 /feed 로 알아서 이동해 줌
+  };
+
+
   return (
     <Drawer
       variant="permanent"
@@ -37,6 +71,7 @@ function Menu() {
           boxSizing: 'border-box',
           borderRight: '1px solid rgba(255,127,162,0.18)',
           backgroundColor: '#ffffff',
+          overflowX: 'hidden',      // ✅ 이 줄 추가
         },
       }}
     >
@@ -45,7 +80,7 @@ function Menu() {
         <ListItem
           component={Link}
           to="/feed"
-          onClick={() => setSelectedMenu('feed')}
+          onClick={handleGoHome}
           sx={{
             mb: 1.5,
             px: 2,
@@ -73,7 +108,7 @@ function Menu() {
           button
           component={Link}
           to="/feed"
-          onClick={() => setSelectedMenu('feed')}
+          onClick={handleGoHome}
           sx={{
             mb: 0.5,
             mx: 1,
@@ -268,6 +303,64 @@ function Menu() {
           />
         </ListItem>
       </List>
+      <List sx={{ px: 1, pb: 2, mt: 'auto' }}>
+        <ListItem
+          button
+          onClick={handleOpenMore}
+          sx={{
+            borderRadius: 3,
+            '&:hover': { backgroundColor: 'rgba(255,127,162,0.07)' },
+          }}
+        >
+          <ListItemText primary="더보기" />
+        </ListItem>
+      </List>
+
+      {/* ↓↓↓ 여기부터 사이즈/스타일 수정한 더보기 메뉴 ↓↓↓ */}
+      <MuiMenu
+        anchorEl={moreAnchorEl}
+        open={openMore}
+        onClose={handleCloseMore}
+        // 인스타처럼 왼쪽 정렬
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        PaperProps={{
+          elevation: 3,
+          sx: {
+            width: 240,          // 사이드바랑 거의 같은 폭
+            borderRadius: 3,
+            mt: -1.5,            // 더보기 버튼에 딱 붙게
+            ml: 1,
+            py: 1,
+          },
+        }}
+        MenuListProps={{
+          sx: { py: 0 },         // 위아래 여백 조정
+        }}
+      >
+        <MenuItem
+          onClick={handleCloseMore}
+          sx={{
+            py: 1.5,              // 세로로 넉넉하게
+            fontSize: 14,
+          }}
+        >
+          설정
+        </MenuItem>
+
+        <Divider />
+
+        <MenuItem
+          onClick={handleLogout}
+          sx={{
+            py: 1.5,
+            fontSize: 14,
+          }}
+        >
+          로그아웃
+        </MenuItem>
+      </MuiMenu>
+
     </Drawer>
   );
 }

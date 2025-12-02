@@ -195,6 +195,18 @@ function Feed() {
     fnFeeds();
   }, []);
 
+  useEffect(() => {
+    // 홈 버튼에서 "refreshFeed" 이벤트가 오면 피드 다시 불러오기
+    const handleRefresh = () => {
+      fnFeeds();
+      // 스크롤 최상단 보장하고 싶으면 여기서 한 번 더 해도 됨
+      // window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.addEventListener('refreshFeed', handleRefresh);
+    return () => window.removeEventListener('refreshFeed', handleRefresh);
+  }, []);
+
   // ⬇️ 피드 카드 안에서 이미지 좌/우로 넘기기
   const handleChangeImage = (feedNo, direction, imagesLength) => {
     setImageIndexes((prev) => {
@@ -249,14 +261,15 @@ function Feed() {
       maxWidth={false}
       disableGutters
       sx={{
-        pl: '240px',
+        minHeight: '100vh',
+        pl: '240px',    // 왼쪽 메뉴 폭
         pr: 8,
+        pt: 4,
+        pb: 6,
         boxSizing: 'border-box',
         overflowX: 'hidden',
-        minHeight: '100vh',
-        py: 4,
         background:
-          'radial-gradient(circle at top left, #ffe3ee 0, #fff5f8 50%, #ffffff 100%)',
+          'radial-gradient(circle at top, #ffe3ee 0, #fff5f8 45%, #ffe3f0 100%)',
       }}
     >
       {/* 메인 레이아웃: 피드 + 오른쪽 사이드바 */}
@@ -284,12 +297,12 @@ function Feed() {
                   key={feed.FEEDNO}
                   sx={{
                     mb: 4,
+                    boxShadow: '0 18px 40px rgba(0,0,0,0.08)',
                     borderRadius: 4,
                     overflow: 'hidden',
-                    boxShadow: '0 18px 40px rgba(0,0,0,0.08)',
-                    backgroundColor: 'rgba(255,255,255,0.98)',
-                    border: '1px solid rgba(255,127,162,0.18)',
-                    backdropFilter: 'blur(6px)',
+                    border: '1px solid rgba(255,255,255,0.6)',
+                    background:
+                      'linear-gradient(180deg, #ffffff 0%, #fff8fc 60%, #ffffff 100%)',
                   }}
                 >
                   {/* 작성자 영역 */}

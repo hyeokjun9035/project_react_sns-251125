@@ -9,19 +9,21 @@ function Join() {
   let navigate = useNavigate();
   return (
     <Container
-      maxWidth="xs"
+      maxWidth={false}          // 🔥 전체 폭
+      disableGutters            // 🔥 양 옆 padding 제거
       sx={{
-        minHeight: '100vh',
+        width: '100vw',
+        height: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         background:
-          'radial-gradient(circle at bottom right, #ffe3ee 0, #fff5f8 40%, #ffffff 100%)',
+          'radial-gradient(circle at top, #ffe3ee 0, #fff5f8 45%, #ffe3f0 100%)',
       }}
     >
       <Box
         sx={{
-          width: '100%',
+          width: 380,           // 로그인 카드랑 비슷한 고정 폭
           px: 4,
           py: 5,
           borderRadius: 4,

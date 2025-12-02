@@ -9,29 +9,31 @@ function Login() {
   let navigate = useNavigate();
   return (
     <Container
-      maxWidth="xs"
+      maxWidth={false}
+      disableGutters
       sx={{
-        minHeight: '100vh',
+        width: '100vw',
+        height: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         background:
-          'radial-gradient(circle at top left, #ffe3ee 0, #fff5f8 40%, #ffffff 100%)',
+          'radial-gradient(circle at top, #ffe3ee 0, #fff5f8 45%, #ffe3f0 100%)',
       }}
     >
+      {/* 여기에 원래 있던 Box 그대로 */}
       <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
         sx={{
-          width: '100%',
-          px: 4,
-          py: 5,
+          width: 380,
+          p: 4,
           borderRadius: 4,
-          boxShadow: '0 20px 45px rgba(255,127,162,0.35)',
-          backgroundColor: 'rgba(255,255,255,0.96)',
+          bgcolor: 'rgba(255,255,255,0.96)',
+          boxShadow: '0 24px 60px rgba(255,127,162,0.45)',
           border: '1px solid rgba(255,127,162,0.25)',
-          backdropFilter: 'blur(10px)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
         }}
       >
         <Typography
