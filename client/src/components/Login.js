@@ -115,6 +115,18 @@ function Login() {
         />
         <Button
           onClick={() => {
+            const userId = idRef.current.value.trim();
+            const pwd = pwdRef.current.value.trim();
+
+            // ⛔ 개별 빈값 체크
+            if (!userId) {
+              alert("ID를 입력해주세요.");
+              return;
+            }
+            if (!pwd) {
+              alert("비밀번호를 입력해주세요.");
+              return;
+            }
             let param = {
               userId: idRef.current.value,
               pwd: pwdRef.current.value,

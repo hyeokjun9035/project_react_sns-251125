@@ -122,7 +122,7 @@ function Feed() {
       setCurrentUser({
         userId: decode.userId,
         userName: decode.userName || '닉네임',
-        profileImg: decode.profileImg || '',
+        profileImg: decode.profileImg || ''
       });
 
       fetch('http://localhost:3010/feed', {
@@ -468,6 +468,7 @@ function Feed() {
                     }}
                   >
                     <Typography
+                      onClick={() => alert("추후 업데이트 예정입니다.")}
                       sx={{
                         cursor: 'pointer',
                         fontSize: 22,
@@ -493,6 +494,7 @@ function Feed() {
                       💬
                     </Typography>
                     <Typography
+                      onClick={() => alert("추후 업데이트 예정입니다.")}
                       sx={{
                         cursor: 'pointer',
                         fontSize: 20,
@@ -621,6 +623,7 @@ function Feed() {
               </Typography>
               <Button
                 size="small"
+                onClick={() => alert("추후 업데이트 예정입니다.")}
                 sx={{
                   fontSize: 12,
                   fontWeight: 600,
@@ -684,6 +687,7 @@ function Feed() {
                 <Button
                   variant="text"
                   size="small"
+                  onClick={() => alert("추후 업데이트 예정입니다.")}
                   sx={{
                     fontWeight: 600,
                     fontSize: 12,
@@ -908,7 +912,10 @@ function Feed() {
                   {selectedFeed?.USERID === loginUserId && (
                     <MenuItem onClick={handleDeleteFeed}>삭제</MenuItem>
                   )}
-                  <MenuItem onClick={handleMenuClose}>신고</MenuItem>
+                  <MenuItem onClick={() => {
+                    // handleMenuClose;
+                    alert("추후 업데이트 예정입니다.");
+                  }}>신고</MenuItem>
                 </Menu>
               </Box>
 

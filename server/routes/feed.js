@@ -13,8 +13,9 @@ const upload = multer({ storage });
 router.get("/", async (req, res) => {
     console.log(`${req.protocol}://${req.get("host")}`);
     try {
-        let sql = "SELECT * FROM P_FEED F " 
-                + "INNER JOIN P_FEED_IMG I ON F.FEEDNO = I.FEEDNO "
+        let sql = "SELECT F.FEEDNO, F.USERID, F.CONTENT, F.CDATETIME, I.IMGNO, I.IMGPATH, I.IMGNAME, U.PROFILE_IMG, U.USERNAME " 
+                + "FROM P_FEED F INNER JOIN P_FEED_IMG I ON F.FEEDNO = I.FEEDNO "
+                + "INNER JOIN P_USER U ON F.USERID = U.USERID "
                 + "ORDER BY F.FEEDNO DESC";
         let [list] = await db.query(sql);
         res.json({

@@ -492,6 +492,7 @@ function MyPage() {
               </Typography>
               <Button
                 variant="outlined"
+                onClick={() => alert("추후 업데이트 예정입니다.")}
                 sx={{
                   textTransform: 'none',
                   borderRadius: '999px',

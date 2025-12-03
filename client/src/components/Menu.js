@@ -42,6 +42,11 @@ function Menu() {
     handleCloseMore();
     console.log("로그아웃");
     // 여기에 실제 로그아웃 로직 넣으면 됨
+    // 1) 토큰 삭제
+    localStorage.removeItem('token');
+    alert("로그아웃 되었습니다.");
+    // 2) 로그인 화면으로 이동
+    navigate('/', { replace: true });
   };
 
   // ⬇⬇ 홈/로고 클릭 공통 함수
@@ -139,8 +144,11 @@ function Menu() {
         <ListItem
           button
           component={Link}
-          to="/search"
-          onClick={() => setSelectedMenu('search')}
+          to="/feed"
+          onClick={() => {
+            // setSelectedMenu('search');
+            alert("추후 업데이트 예정입니다.");
+          }}
           sx={{
             mb: 0.5,
             mx: 1,
@@ -207,8 +215,11 @@ function Menu() {
         <ListItem
           button
           component={Link}
-          to="/Notification"
-          onClick={() => setSelectedMenu('Notification')}
+          to="/feed"
+          onClick={() => {
+            setSelectedMenu('Notification')
+            alert("추후 업데이트 예정입니다.");
+          }}
           sx={{
             mb: 0.5,
             mx: 1,
@@ -339,7 +350,9 @@ function Menu() {
         }}
       >
         <MenuItem
-          onClick={handleCloseMore}
+          onClick={()=>{
+            alert("추후 업데이트 예정입니다.");
+          }}
           sx={{
             py: 1.5,              // 세로로 넉넉하게
             fontSize: 14,

@@ -53,6 +53,55 @@ function Chat() {
     const currentRoom = rooms.find((r) => r.ROOMID === selectedRoomId) || null;
     const currentMessages = messages;
 
+    const roomMembers = currentRoom ? getRoomMembers(currentRoom) : [];
+    const memberProfileMap = {};
+    roomMembers.forEach((m) => {
+        memberProfileMap[m.id] = m.profile; // { 'b123': '...jpg', ... }
+    });
+
+    // 그룹 채팅용 작은 프로필 썸네일
+    function GroupAvatar({ members, size = 40 }) {
+        // 최대 4명까지만 보여줄게 (2x2 그리드 느낌)
+        const displayMembers = members.slice(0, 4);
+        const itemSize = size / 2 + 2; // 살짝 겹치게
+
+        const positions = [
+            { top: 0, left: 0 },
+            { top: 0, right: 0 },
+            { bottom: 0, left: 0 },
+            { bottom: 0, right: 0 },
+        ];
+
+        return (
+            <Box
+                sx={{
+                    position: 'relative',
+                    width: size,
+                    height: size,
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    bgcolor: '#eee',
+                }}
+            >
+                {displayMembers.map((m, idx) => (
+                    <Avatar
+                        key={m.id}
+                        src={m.profile || undefined}
+                        sx={{
+                            width: itemSize,
+                            height: itemSize,
+                            position: 'absolute',
+                            ...positions[idx],
+                            fontSize: 10,
+                        }}
+                    >
+                        {m.name?.charAt(0).toUpperCase()}
+                    </Avatar>
+                ))}
+            </Box>
+        );
+    }
+
     function fnRoomList() {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -297,34 +346,47 @@ function Chat() {
     });
 
     function getRoomInfo(room, myId) {
-        // 그룹 채팅이면 그냥 방 이름 사용
-        if (room.TYPE === 'group') {
-            return {
-                title: room.ROOM_NAME || '그룹 채팅',
-                subTitle: '',           // 필요 없으면 빈 문자열
-                avatar: room.avatarUrl || '',
-            };
-        }
-
-        // 1:1 채팅일 때
         const ids = room.USERS ? room.USERS.split(',') : [];
         const names = room.USER_NAMES ? room.USER_NAMES.split(',') : [];
         const imgs = room.USER_PROFILE_IMGS ? room.USER_PROFILE_IMGS.split(',') : [];
 
-        // 나(me)가 아닌 상대방이 몇 번째 인덱스인지 찾기
-        let idx = ids.findIndex(id => id !== myId);
-        if (idx === -1) idx = 0; // 혹시 못 찾으면 첫 번째로
+        // 🔹 공통: 멤버 객체 배열
+        const members = ids.map((id, idx) => ({
+            id,
+            name: names[idx] || id,
+            profile: imgs[idx] || '',
+        }));
+
+        if (room.TYPE === 'group') {
+            // 🔹 그룹 방: 나를 제외한 멤버 중 첫 번째 프로필 or 첫 멤버 프로필 사용
+            const others = members.filter((m) => m.id !== myId);
+            const avatarProfile =
+                (others[0] && others[0].profile) ||
+                (members[0] && members[0].profile) ||
+                '';
+
+            return {
+                title: room.ROOM_NAME || '그룹 채팅',
+                subTitle: `멤버 ${members.length}명`,
+                avatar: avatarProfile,
+            };
+        }
+
+        // 🔹 1:1 방
+        let idx = ids.findIndex((id) => id !== myId);
+        if (idx === -1) idx = 0;
 
         const userId = ids[idx] || 'user';
         const userName = names[idx] || userId;
         const profile = imgs[idx] || '';
 
         return {
-            title: userName,      // 리스트에 크게 보일 글자
-            subTitle: userId,     // 아래에 작게 보일 글자 (원하면 안 써도 됨)
-            avatar: profile,      // 프로필 이미지 경로
+            title: userName,
+            subTitle: userId,
+            avatar: profile,
         };
     }
+
 
     const handleSendMessage = () => {
         if (!inputText.trim() || !selectedRoomId) return;
@@ -356,6 +418,7 @@ function Chat() {
         currentRoom && roomInfo && currentRoom.TYPE !== 'group'
             ? roomInfo.avatar
             : '';
+
     return (
         <Container
             maxWidth={false}
@@ -405,39 +468,31 @@ function Chat() {
                     >
                         {currentRoom && roomInfo && (
                             <>
-                                <Avatar
-                                    sx={{ width: 32, height: 32, mr: 1 }}
-                                    src={roomInfo.avatar || undefined}
-                                >
-                                    {roomInfo.title.charAt(0).toUpperCase()}
-                                </Avatar>
-                                <Box>
+                                {currentRoom.TYPE === 'group' ? (
+                                    <GroupAvatar
+                                        members={getRoomMembers(currentRoom).filter(
+                                            (m) => m.id !== loginUserId
+                                        )}
+                                        size={32}
+                                    />
+                                ) : (
+                                    <Avatar
+                                        sx={{ width: 32, height: 32, mr: 1 }}
+                                        src={roomInfo.avatar || undefined}
+                                    >
+                                        {roomInfo.title.charAt(0).toUpperCase()}
+                                    </Avatar>
+                                )}
+                                <Box sx={{ ml: 1 }}>
                                     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
                                         {roomInfo.title}
                                     </Typography>
-                                    <Typography
-                                        sx={{ fontSize: 12, color: '#8e8e8e' }}
-                                        noWrap
-                                    >
+                                    <Typography sx={{ fontSize: 12, color: '#8e8e8e' }} noWrap>
                                         {currentRoom.TYPE === 'group'
-                                            ? currentRoom.ROOM_NAME || '그룹 채팅'
+                                            ? `${currentRoom.ROOM_NAME || '그룹 채팅'} · 멤버 ${getRoomMembers(currentRoom).length
+                                            }명`
                                             : roomInfo.subTitle || '1:1 채팅'}
                                     </Typography>
-                                </Box>
-                                <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    {currentRoom.TYPE === 'group' && (
-                                        <Button
-                                            variant="outlined"
-                                            size="small"
-                                            sx={{ textTransform: 'none', fontSize: 12, borderRadius: 999 }}
-                                            onClick={() => setMemberModalOpen(true)}
-                                        >
-                                            멤버 보기
-                                        </Button>
-                                    )}
-                                    <IconButton size="small">
-                                        <MoreVert />
-                                    </IconButton>
                                 </Box>
                             </>
                         )}
@@ -501,20 +556,30 @@ function Chat() {
                                         }}
                                     >
                                         <ListItemAvatar>
-                                            <Badge
-                                                color="primary"
-                                                variant={isUnread ? 'dot' : 'standard'}
-                                                overlap="circular"
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                            >
-                                                <Avatar src={avatar || undefined}>
-                                                    {title.charAt(0).toUpperCase()}
-                                                </Avatar>
-                                            </Badge>
+                                            {room.TYPE === 'group' ? (
+                                                // 그룹 방: 여러 명 프로필 썸네일
+                                                <GroupAvatar
+                                                    members={getRoomMembers(room).filter((m) => m.id !== loginUserId)}
+                                                    size={40}
+                                                />
+                                            ) : (
+                                                // 1:1 방: 기존과 동일
+                                                <Badge
+                                                    color="primary"
+                                                    variant={isUnread ? 'dot' : 'standard'}
+                                                    overlap="circular"
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                >
+                                                    <Avatar src={avatar || undefined}>
+                                                        {title.charAt(0).toUpperCase()}
+                                                    </Avatar>
+                                                </Badge>
+                                            )}
                                         </ListItemAvatar>
+
                                         <ListItemText
                                             primary={
                                                 <Typography
@@ -592,13 +657,23 @@ function Chat() {
                     >
                         {currentRoom && roomInfo && (
                             <>
-                                <Avatar
-                                    sx={{ width: 32, height: 32, mr: 1 }}
-                                    src={roomInfo.avatar || undefined}
-                                >
-                                    {roomInfo.title.charAt(0).toUpperCase()}
-                                </Avatar>
-                                <Box>
+                                {currentRoom.TYPE === 'group' ? (
+                                    <GroupAvatar
+                                        members={getRoomMembers(currentRoom).filter(
+                                            (m) => m.id !== loginUserId
+                                        )}
+                                        size={32}
+                                    />
+                                ) : (
+                                    <Avatar
+                                        sx={{ width: 32, height: 32 }}
+                                        src={roomInfo.avatar || undefined}
+                                    >
+                                        {roomInfo.title.charAt(0).toUpperCase()}
+                                    </Avatar>
+                                )}
+
+                                <Box sx={{ ml: 1 }}>
                                     <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
                                         {roomInfo.title}
                                     </Typography>
@@ -712,20 +787,30 @@ function Chat() {
                                     <Stack spacing={1.2}>
                                         {currentMessages.map((msg, idx) => {
                                             const isMine = msg.senderId === loginUserId;
+                                            const isGroup = currentRoom?.TYPE === 'group';
+
                                             const showAvatar =
                                                 !isMine &&
-                                                (idx === 0 ||
-                                                    currentMessages[idx - 1].senderId !==
-                                                    msg.senderId);
+                                                (idx === 0 || currentMessages[idx - 1].senderId !== msg.senderId);
+
+                                            const senderProfile = !isMine
+                                                ? memberProfileMap[msg.senderId] || ''
+                                                : '';
+
+                                            // 🔹 그룹 채팅일 때만 이름 표시용
+                                            const senderInfo = roomMembers.find((m) => m.id === msg.senderId);
+                                            const senderName = senderInfo?.name || msg.senderId;
+                                            const showName =
+                                                isGroup &&
+                                                !isMine &&
+                                                (idx === 0 || currentMessages[idx - 1].senderId !== msg.senderId);
 
                                             return (
                                                 <Box
                                                     key={msg.id}
                                                     sx={{
                                                         display: 'flex',
-                                                        justifyContent: isMine
-                                                            ? 'flex-end'
-                                                            : 'flex-start',
+                                                        justifyContent: isMine ? 'flex-end' : 'flex-start',
                                                     }}
                                                 >
                                                     {!isMine && (
@@ -733,36 +818,45 @@ function Chat() {
                                                             {showAvatar ? (
                                                                 <Avatar
                                                                     sx={{ width: 30, height: 30 }}
-                                                                    src={otherProfileImg || undefined}   // Feed 방식이랑 동일
-                                                                />
+                                                                    src={senderProfile || undefined}
+                                                                >
+                                                                    {msg.senderId.charAt(0).toUpperCase()}
+                                                                </Avatar>
                                                             ) : (
                                                                 <Box sx={{ width: 30 }} />
                                                             )}
                                                         </Box>
                                                     )}
 
-
                                                     <Box
                                                         sx={{
                                                             maxWidth: '60%',
                                                             display: 'flex',
                                                             flexDirection: 'column',
-                                                            alignItems: isMine
-                                                                ? 'flex-end'
-                                                                : 'flex-start',
+                                                            alignItems: isMine ? 'flex-end' : 'flex-start',
                                                         }}
                                                     >
+                                                        {/* 🔸 그룹 채팅에서만 아이디/닉네임 표시 */}
+                                                        {showName && (
+                                                            <Typography
+                                                                sx={{
+                                                                    fontSize: 11,
+                                                                    fontWeight: 600,
+                                                                    color: '#999',
+                                                                    mb: 0.2,
+                                                                }}
+                                                            >
+                                                                {senderName}
+                                                            </Typography>
+                                                        )}
+
                                                         <Box
                                                             sx={{
                                                                 px: 1.7,
                                                                 py: 1,
                                                                 borderRadius: 3,
-                                                                bgcolor: isMine
-                                                                    ? '#ff7fa2'
-                                                                    : '#ffffff',
-                                                                border: isMine
-                                                                    ? 'none'
-                                                                    : '1px solid #ffd1e0',
+                                                                bgcolor: isMine ? '#ff7fa2' : '#ffffff',
+                                                                border: isMine ? 'none' : '1px solid #ffd1e0',
                                                                 color: isMine ? '#fff' : '#000',
                                                                 fontSize: 14,
                                                                 whiteSpace: 'pre-wrap',
@@ -771,6 +865,7 @@ function Chat() {
                                                         >
                                                             {msg.text}
                                                         </Box>
+
                                                         <Box
                                                             sx={{
                                                                 mt: 0.3,
@@ -779,9 +874,7 @@ function Chat() {
                                                                 gap: 0.7,
                                                             }}
                                                         >
-                                                            <Typography
-                                                                sx={{ fontSize: 11, color: '#aaaaaa' }}
-                                                            >
+                                                            <Typography sx={{ fontSize: 11, color: '#aaaaaa' }}>
                                                                 {msg.createdAt}
                                                             </Typography>
                                                             {isMine && (
@@ -789,14 +882,10 @@ function Chat() {
                                                                     sx={{
                                                                         fontSize: 11,
                                                                         color:
-                                                                            msg.readCount > 0
-                                                                                ? '#ff4f81'
-                                                                                : '#aaaaaa',
+                                                                            msg.readCount > 0 ? '#ff4f81' : '#aaaaaa',
                                                                     }}
                                                                 >
-                                                                    {msg.readCount > 0
-                                                                        ? '읽음'
-                                                                        : '전송됨'}
+                                                                    {msg.readCount > 0 ? '읽음' : '전송됨'}
                                                                 </Typography>
                                                             )}
                                                         </Box>

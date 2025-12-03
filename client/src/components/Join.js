@@ -48,7 +48,9 @@ function Join() {
             mb: 1,
           }}
         >
-          Thlog 가입하기
+          <span>𝓣𝓱𝓵</span>
+          <span style={{ color: '#ff7fa2', margin: '0 4px' }}>♥</span>
+          <span>𝓰</span>
         </Typography>
         <Typography
           variant="body2"
@@ -135,6 +137,26 @@ function Join() {
         />
         <Button
           onClick={() => {
+            const userId = idRef.current.value.trim();
+            const pwd = pwdRef.current.value.trim();
+            const userName = nameRef.current.value.trim();
+
+            // ✅ 빈 값 체크
+            // ✅ 항목별 빈값 체크
+            if (!userId) {
+              alert("ID를 입력해주세요.");
+              return;
+            }
+
+            if (!pwd) {
+              alert("Password를 입력해주세요.");
+              return;
+            }
+
+            if (!userName) {
+              alert("Username을 입력해주세요.");
+              return;
+            }
             let param = {
               userId: idRef.current.value,
               pwd: pwdRef.current.value,
@@ -150,8 +172,9 @@ function Join() {
               .then((res) => res.json())
               .then((data) => {
                 alert(data.msg);
-                console.log(data);
-                navigate('/');
+                if (data.result == "success") {
+                  navigate('/');  // 성공일 때만 이동
+                }
               });
           }}
           variant="contained"
@@ -181,7 +204,7 @@ function Join() {
         >
           이미 회원이라면?{' '}
           <Link
-            to="/login"
+            to="/"
             style={{
               color: '#ff4f81',
               fontWeight: 600,

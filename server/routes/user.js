@@ -36,13 +36,23 @@ router.post("/join", async (req, res) => {
     let { userId, pwd, userName } = req.body;
     console.log(req.body);
     try {
+        // 1) 아이디 중복 체크
+        let checkSql = "SELECT COUNT(*) AS cnt FROM P_USER WHERE USERID = ?";
+        let [rows] = await db.query(checkSql, [userId]);
+
+        if (rows[0].cnt > 0) {
+            return res.json({
+                result: "fail",
+                msg: "이미 사용 중인 ID입니다."
+            });
+        }
         const hashPwd = await bcrypt.hash(pwd, 10);
         console.log(hashPwd);
         let sql = "INSERT INTO P_USER(USERID, PWD, USERNAME, CDATETIME, UDATETIME) VALUES(?, ?, ?, NOW(), NOW())";
         let result = await db.query(sql, [userId, hashPwd, userName]);
         // console.log(list);
         res.json({
-            result: result,
+            result: "success",
             msg: "가입되었습니다!"
         })
     } catch (error) {
@@ -155,7 +165,8 @@ router.post("/login", async (req, res) => {
                 let user = {
                     userId: list[0].USERID,
                     userName: list[0].USERNAME,
-                    status: list[0].STATUS
+                    status: list[0].STATUS,
+                    profileImg: list[0].PROFILE_IMG || null
                 };
 
                 token = jwt.sign(user, JWT_KEY, { expiresIn: '1h' });
