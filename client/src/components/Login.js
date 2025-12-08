@@ -131,7 +131,8 @@ function Login() {
               userId: idRef.current.value,
               pwd: pwdRef.current.value,
             };
-            fetch('http://localhost:3010/user/login', {
+            console.log(process.env.REACT_APP_ADDR);
+            fetch(`http://${process.env.REACT_APP_ADDR}/user/login`, {
               method: 'POST',
               headers: {
                 'Content-type': 'application/json',

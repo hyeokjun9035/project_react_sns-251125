@@ -109,7 +109,7 @@ function MyPage() {
       return;
     }
 
-    fetch('http://localhost:3010/feed/' + selectedFeed.feedNo, {
+    fetch(`http://${process.env.REACT_APP_ADDR}/feed/` + selectedFeed.feedNo, {
       method: 'DELETE',
       headers: {
         Authorization: 'Bearer ' + token,
@@ -128,7 +128,7 @@ function MyPage() {
     const token = localStorage.getItem('token');
     if (token) {
       const decode = jwtDecode(token);
-      fetch('http://localhost:3010/user/' + decode.userId)
+      fetch(`http://${process.env.REACT_APP_ADDR}/user/` + decode.userId)
         .then((res) => res.json())
         .then((data) => {
           setUser(data.user);
@@ -145,7 +145,7 @@ function MyPage() {
 
     const decode = jwtDecode(token);
 
-    fetch('http://localhost:3010/user/' + decode.userId + '/followers', {
+    fetch(`http://${process.env.REACT_APP_ADDR}/user/ `+ decode.userId + '/followers', {
       headers: {
         Authorization: 'Bearer ' + token,
       },
@@ -155,7 +155,7 @@ function MyPage() {
         setFollowers(data.list || []);
       });
 
-    fetch('http://localhost:3010/user/' + decode.userId + '/followings', {
+    fetch(`http://${process.env.REACT_APP_ADDR}/user/` + decode.userId + '/followings', {
       headers: {
         Authorization: 'Bearer ' + token,
       },
@@ -173,7 +173,7 @@ function MyPage() {
         targetId: targetId,
       };
 
-      fetch('http://localhost:3010/user/follow', {
+      fetch(`http://${process.env.REACT_APP_ADDR}/user/follow`, {
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
@@ -200,7 +200,7 @@ function MyPage() {
         targetId: targetId,
       };
 
-      fetch('http://localhost:3010/user/follow', {
+      fetch(`http://${process.env.REACT_APP_ADDR}/user/follow`, {
         method: 'DELETE',
         headers: {
           'Content-type': 'application/json',
@@ -227,7 +227,7 @@ function MyPage() {
         targetId: targetId,
       };
 
-      fetch('http://localhost:3010/user/follower', {
+      fetch(`http://${process.env.REACT_APP_ADDR}/user/follower`, {
         method: 'DELETE',
         headers: {
           'Content-type': 'application/json',
@@ -251,7 +251,7 @@ function MyPage() {
     const token = localStorage.getItem('token');
     if (token) {
       const decode = jwtDecode(token);
-      fetch('http://localhost:3010/feed/' + decode.userId)
+      fetch(`http://${process.env.REACT_APP_ADDR}/feed/` + decode.userId)
         .then((res) => res.json())
         .then((data) => {
           const groupedObj = data.list.reduce((acc, row) => {
@@ -300,7 +300,7 @@ function MyPage() {
 
     const userId = user.USERID || user.userId;
 
-    fetch('http://localhost:3010/user/' + userId + '/profile', {
+    fetch(`http://${process.env.REACT_APP_ADDR}/user/` + userId + '/profile', {
       method: 'POST',
       body: formData,
     })

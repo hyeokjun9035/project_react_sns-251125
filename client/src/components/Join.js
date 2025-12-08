@@ -162,7 +162,7 @@ function Join() {
               pwd: pwdRef.current.value,
               userName: nameRef.current.value,
             };
-            fetch('http://localhost:3010/user/join', {
+            fetch(`http://${process.env.REACT_APP_ADDR}/user/join`, {
               method: 'POST',
               headers: {
                 'Content-type': 'application/json',

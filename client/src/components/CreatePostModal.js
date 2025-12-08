@@ -49,7 +49,7 @@ function CreatePostModal() {
 
         try {
             const decode = jwtDecode(token);
-            fetch('http://localhost:3010/user/' + decode.userId)
+            fetch(`http://${process.env.REACT_APP_ADDR}/user/` + decode.userId)
                 .then((res) => res.json())
                 .then((data) => {
                     setUser(data.user);
@@ -122,7 +122,7 @@ function CreatePostModal() {
             userId: decode.userId,
         };
 
-        fetch('http://localhost:3010/feed', {
+        fetch(`http://${process.env.REACT_APP_ADDR}/feed`, {
             method: 'POST',
             headers: {
                 'Content-type': 'application/json',
@@ -156,7 +156,7 @@ function CreatePostModal() {
         }
         formData.append('feedNo', feedNo);
 
-        fetch('http://localhost:3010/feed/upload', {
+        fetch(`http://${process.env.REACT_APP_ADDR}/feed/upload`, {
             method: 'POST',
             body: formData,
         })

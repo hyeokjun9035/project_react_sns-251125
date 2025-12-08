@@ -113,7 +113,7 @@ function Chat() {
         const decode = jwtDecode(token);
         setLoginUserId(decode.userId); // 로그인한 아이디 저장
 
-        fetch('http://localhost:3010/chat', {
+        fetch(`http://${process.env.REACT_APP_ADDR}/chat`, {
             headers: {
                 Authorization: "Bearer " + token,
             },
@@ -126,7 +126,7 @@ function Chat() {
     }
 
     function fnMessageList(roomId) {
-        fetch('http://localhost:3010/chat/' + roomId)
+        fetch(`http://${process.env.REACT_APP_ADDR}/chat/` + roomId)
             .then((res) => res.json())
             .then((data) => {
                 console.log('message data:', data);
@@ -149,7 +149,7 @@ function Chat() {
             navigate('/');
             return;
         }
-        fetch("http://localhost:3010/chat/friends", {
+        fetch(`http://${process.env.REACT_APP_ADDR}/chat/friends`, {
             headers: {
                 Authorization: "Bearer " + token,
             },
@@ -172,7 +172,7 @@ function Chat() {
             return;
         }
 
-        fetch("http://localhost:3010/chat/room", {
+        fetch(`http://${process.env.REACT_APP_ADDR}/chat/room`, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
@@ -225,7 +225,7 @@ function Chat() {
             return;
         }
 
-        fetch("http://localhost:3010/chat/room", {
+        fetch(`http://${process.env.REACT_APP_ADDR}/chat/room`, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
@@ -291,7 +291,7 @@ function Chat() {
     }, [currentMessages.length, selectedRoomId, currentRoom]);
 
     useEffect(() => {
-        const socket = io('http://localhost:3010', {
+        const socket = io(`http://${process.env.REACT_APP_ADDR}`, {
             transports: ['websocket'],
         });
 

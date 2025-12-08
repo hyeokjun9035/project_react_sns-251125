@@ -97,7 +97,7 @@ function Feed() {
       return;
     }
 
-    fetch('http://localhost:3010/feed/' + selectedFeed.feedNo, {
+    fetch(`http://${process.env.REACT_APP_ADDR}/feed/` + selectedFeed.feedNo, {
       method: 'DELETE',
       headers: {
         Authorization: 'Bearer ' + token,
@@ -125,7 +125,7 @@ function Feed() {
         profileImg: decode.profileImg || ''
       });
 
-      fetch('http://localhost:3010/feed', {
+      fetch(`http://${process.env.REACT_APP_ADDR}/feed`, {
         headers: {
           Authorization: 'Bearer ' + token,
         },
