@@ -262,8 +262,8 @@ function Feed() {
       disableGutters
       sx={{
         minHeight: '100vh',
-        pl: '240px',    // 왼쪽 메뉴 폭
-        pr: 8,
+        pl: { xs: 0, md: '240px' }, // ⬅️ 모바일(xs)에서는 0, md 이상에서만 240px
+        pr: { xs: 2, md: 8 },
         pt: 4,
         pb: 6,
         boxSizing: 'border-box',
