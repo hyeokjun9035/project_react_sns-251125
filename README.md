@@ -58,7 +58,7 @@
 
 ## 🏠 메인 피드 페이지
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed.png" width="450px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/other_feed.png" width="450px" height="325px"> 
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed.png" width="400px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/other_feed.png" width="400px" height="325px"> 
 
    + 서로 갔던 곳을 공유할 수 있도록 피드 구성
    + 게시글 클릭 시 상세 + 피드 확대보기 기능 모달 제공
