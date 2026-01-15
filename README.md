@@ -49,7 +49,12 @@
 ## 🔐 로그인 / 회원가입
 
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/login.png" width="355px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/login_fail.png" width="300px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/login_success.png" width="300px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/join.png" width="343px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/join_fail.png" width="305px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/join_success.png" width="305px" height="325px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/login.png" width="345px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/login_fail.png" width="240px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/login_success.png" width="235px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/join.png" width="290px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/join_fail.png" width="235px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/join_success.png" width="258px">
 
    + 심플한 UI로 접근성을 높이고, 연분홍 포인트로 사랑스러운 표현
    + 로그인시 아이디가 맞지않으면 로그인 불가능하게 적용
