@@ -49,7 +49,7 @@
 ## 🔐 로그인 / 회원가입
 
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/login.png" width="358px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/login_fail.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/login_success.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/join.png" width="358px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/join_fail.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/join_success.png" width="320px" height="325px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/login.png" width="355px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/login_fail.png" width="315px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/login_success.png" width="315px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/join.png" width="353px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/join_fail.png" width="315px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/join_success.png" width="315px" height="325px">
 
    + 심플한 UI로 접근성을 높이고, 연분홍 포인트로 사랑스러운 표현
    + 로그인시 아이디가 맞지않으면 로그인 불가능하게 적용
@@ -58,7 +58,7 @@
 
 ## 🏠 메인 피드 페이지
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed.png" width="500px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/other_feed.png" width="500px" height="325px"> 
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed.png" width="490px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/other_feed.png" width="490px" height="325px"> 
 
    + 서로 갔던 곳을 공유할 수 있도록 피드 구성
    + 게시글 클릭 시 상세 + 피드 확대보기 기능 모달 제공
