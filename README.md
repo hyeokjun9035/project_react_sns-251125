@@ -58,7 +58,7 @@
 
 ## 🏠 메인 피드 페이지
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/other_feed.png" width="320px" height="325px"> 
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed.png" width="500px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/other_feed.png" width="500px" height="325px"> 
 
    + 서로 갔던 곳을 공유할 수 있도록 피드 구성
    + 게시글 클릭 시 상세 + 피드 확대보기 기능 모달 제공
@@ -71,7 +71,7 @@
 
 ## 👤 마이페이지
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/mypage.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/myfeed.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/follower.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/following.png" width="320px" height="325px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/mypage.png" width="436px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/myfeed.png" width="490px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/follower.png" width="453px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/following.png" width="473px" height="325px">
 
    + 내가 작성한 피드 리스트 출력
    + 친구 목록 및 언팔로우 기능 구현
@@ -80,14 +80,14 @@
 
 ## 💬 다이렉트 메시지 (DM)
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_send.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_direct_room.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_direct_group.png" width="320px" height="325px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_send.png" width="335px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_direct_room.png" width="335px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_direct_group.png" width="330px" height="325px">
 
    + 메시지 목록에서 유저 검색 후 1:1 및 그룹 채팅 가능
    + 채팅 메시지 저장 및 조회를 위한 DB 구조 설계 및 연동
 
 ## 🖋 피드 작성
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make_1.png" width="320px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make_delete.png" width="320px" height="325px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make.png" width="337px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make_1.png" width="325px" height="320px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make_delete.png" width="320px" height="325px">
 
   + 여러 사진 선택 가능하도록 구현(추후 동영상도 추가할 수 있도록 구현 예정)
   + 내가 선택한 사진들 확인후 피드 글쓰기 구현
