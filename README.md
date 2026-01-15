@@ -80,7 +80,7 @@
 
 ## 💬 다이렉트 메시지 (DM)
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_send.png" width="335px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_direct_room.png" width="335px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_direct_group.png" width="330px" height="325px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_send.png" width="264px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_direct_room.png" width="264px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/chat_direct_group.png" width="260px">
 
    + 메시지 목록에서 유저 검색 후 1:1 및 그룹 채팅 가능
    + 채팅 메시지 저장 및 조회를 위한 DB 구조 설계 및 연동
