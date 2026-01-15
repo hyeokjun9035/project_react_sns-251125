@@ -71,7 +71,7 @@
 
 ## 👤 마이페이지
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/mypage.png" width="436px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/myfeed.png" width="490px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/follower.png" width="453px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/following.png" width="473px" height="325px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/mypage.png" width="386px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/myfeed.png" width="440px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/follower.png" width="403px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/following.png" width="423px">
 
    + 내가 작성한 피드 리스트 출력
    + 친구 목록 및 언팔로우 기능 구현
