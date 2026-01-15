@@ -87,7 +87,7 @@
 
 ## 🖋 피드 작성
 
-<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make.png" width="337px" height="325px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make_1.png" width="325px" height="320px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make_delete.png" width="320px" height="325px">
+<img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make.png" width="277px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make_1.png" width="265px"> <img src="https://github.com/hyeokjun9035/sns_img/blob/main/feed_make_delete.png" width="260px">
 
   + 여러 사진 선택 가능하도록 구현(추후 동영상도 추가할 수 있도록 구현 예정)
   + 내가 선택한 사진들 확인후 피드 글쓰기 구현
